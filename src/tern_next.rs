@@ -1,4 +1,4 @@
-use std::ops::Add;
+use std::ops::{Add, Neg};
 
 /// This data type represents a single ternary number, up to
 /// 32 digits in length. It uses a BCT representation where
@@ -37,6 +37,18 @@ impl<const S1: usize, const S2: usize> Add<Ternary<S2>> for Ternary<S1>
         // 1. (Frieder & Luk, 1975). This means that
         // neg_t & pos_t = 0.
         todo!()
+    }
+}
+
+//== Ops ==//
+
+impl<const SIZE: usize> Neg for Ternary<SIZE> 
+    where [(); SIZE + (usize::MAX - 32)]:
+{
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self{ pos: self.neg, neg: self.pos }
     }
 }
 
