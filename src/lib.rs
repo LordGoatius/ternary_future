@@ -1,4 +1,7 @@
-#![feature(generic_const_exprs)]
+#![feature(generic_const_exprs,
+           const_default,
+           derive_const,
+           const_trait_impl)]
 
 mod tern_next;
 pub mod helper;
@@ -9,6 +12,7 @@ use ternary::{tryte::Tryte, word::Word};
 pub type Addr = Word;
 pub type Memory = &'static [MemEntry];
 
+#[expect(unused)]
 pub struct MemEntry {
     dev: &'static dyn MemoryDevice,
     base: Addr,
@@ -30,6 +34,7 @@ pub struct MemEntry {
 /// - Devices are sized by pages.
 /// QUESTIONS:
 /// - DMA?
+#[expect(unused)]
 pub trait MemoryDevice {
     fn write_tryte(&mut self, offset: Addr, value: Tryte);
     fn write_word(&mut self, offset: Addr, value: Word);
