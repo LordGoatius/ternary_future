@@ -4,11 +4,12 @@ pub mod and;
 pub mod or;
 pub mod xor;
 
-use crate::tern_next::Ternary;
 use crate::helper::neg;
+use crate::tern_next::Ternary;
 
-impl<const SIZE: usize> Neg for Ternary<SIZE> 
-    where [(); SIZE + (usize::MAX - 32)]:
+impl<const SIZE: usize> Neg for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     type Output = Self;
 
@@ -16,4 +17,3 @@ impl<const SIZE: usize> Neg for Ternary<SIZE>
         neg(self)
     }
 }
-

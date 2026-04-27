@@ -1,13 +1,9 @@
 // I will pay for my hubris one day
 #![expect(incomplete_features)]
-#![feature(generic_const_exprs,
-           const_default,
-           derive_const,
-           const_trait_impl)]
+#![feature(generic_const_exprs, const_default, derive_const, const_trait_impl)]
 
-mod tern_next;
 pub mod helper;
-
+mod tern_next;
 
 use ternary::{tryte::Tryte, word::Word};
 
@@ -43,19 +39,25 @@ pub trait MemoryDevice {
     fn read_word(&mut self, offset: Addr, value: Word);
 
     /// Default impl that calls [`MemoryDevice::write_tryte`] in a loop
-    fn write_trytes(&mut self, offset: Addr, value: &[Tryte]) { todo!() }
+    fn write_trytes(&mut self, offset: Addr, value: &[Tryte]) {
+        todo!()
+    }
     /// Default impl that calls [`MemoryDevice::write_word`] in a loop
-    fn write_words(&mut self, offset: Addr, value: &[Word]) { todo!() }
+    fn write_words(&mut self, offset: Addr, value: &[Word]) {
+        todo!()
+    }
 
     // NOTE: Remove these? We can write in a loop, but when reading we can't
     // assume the internal representation can deref into a slice
-    fn read_trytes(&mut self, offset: Addr) -> &[Tryte] { todo!() }
-    fn read_words(&mut self, offset: Addr) -> &[Word] { todo!() }
+    fn read_trytes(&mut self, offset: Addr) -> &[Tryte] {
+        todo!()
+    }
+    fn read_words(&mut self, offset: Addr) -> &[Word] {
+        todo!()
+    }
 }
 
 pub struct Ram();
 
-
 #[cfg(test)]
-mod tests {
-}
+mod tests {}

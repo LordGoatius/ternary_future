@@ -17,13 +17,9 @@ struct Def1;
 /// Takes in pair (a, b), and returns pair (c, d), where (c, d) are mutually exclusive.
 /// [`Def1`]
 #[inline]
-pub fn a1((a, b): (u32, u32)) -> (u32, u32) {
-    // This should theoretically allow a very smart compiler to
-    // optimize on the fact that these are in fact mutually exlusive
+pub const fn a1((a, b): (u32, u32)) -> (u32, u32) {
     let (c, d) = (a & !b, b & !a);
-    assert_eq!(c & d, 0);
     (c, d)
-    
 }
 
 /// a is minor to b iff a & b == b
@@ -34,20 +30,23 @@ struct Def2;
 /// Takes in pair (a, b), and returns pair (c, d), where d is minor to c.
 /// [`Def2`]
 #[inline]
-pub fn a2((a, b): (u32, u32)) -> (u32, u32) {
+pub const fn a2((a, b): (u32, u32)) -> (u32, u32) {
     let c = (b ^ a) | a;
     let d = (b ^ a) ^ c;
-    assert_eq!(c & d, d);
     (c, d)
 }
 
 /// Algorithm b1 in (Frieder & Luk, 1975)
 /// Takes in BT number A, and returns BT number -A
 #[inline]
-pub fn b1<const SIZE: usize>(a: Ternary<SIZE>) -> Ternary<SIZE>
-    where [(); SIZE + (usize::MAX - 32)]:
+pub const fn b1<const SIZE: usize>(a: Ternary<SIZE>) -> Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    Ternary { pos: a.neg, neg: a.pos }
+    Ternary {
+        pos: a.neg,
+        neg: a.pos,
+    }
 }
 
 /// Algorithm b2 in (Frieder & Luk, 1975)
@@ -55,14 +54,14 @@ pub fn b1<const SIZE: usize>(a: Ternary<SIZE>) -> Ternary<SIZE>
 /// Given a = [a1, a2], b = [b1, 0]
 /// And b1 is minor to a1
 #[inline]
-pub fn b2<const S1: usize, const S2: usize>(a: Ternary<S1>, b: Ternary<S2>) -> Ternary<S1>
-    where
-        [(); S1 + (usize::MAX - 32)]:,
-        [(); S2 + (usize::MAX - 32)]:,
-        [(); S1 - S2]:,
+pub const fn b2<const S1: usize, const S2: usize>(a: Ternary<S1>, b: Ternary<S2>) -> Ternary<S1>
+where
+    [(); S1 + (usize::MAX - 32)]:,
+    [(); S2 + (usize::MAX - 32)]:,
+    [(); S1 - S2]:,
 {
     let Ternary { pos: a1, neg: a2 } = a;
-    let Ternary { pos: b1, neg: _  } = b;
+    let Ternary { pos: b1, neg: _ } = b;
     let x1 = a1 + b1;
     let x2 = a1 & !x1;
     let s1 = x1 & !b1;
@@ -77,21 +76,27 @@ pub fn b2<const S1: usize, const S2: usize>(a: Ternary<S1>, b: Ternary<S2>) -> T
 ///
 /// The consts here are to make sure the larger ternary size gets returned.
 #[inline]
-pub fn b3<const S1: usize, const S2: usize>(a: Ternary<S1>, b: Ternary<S2>) -> Ternary<S1>
-    where
-        [(); S1 + (usize::MAX - 32)]:,
-        [(); S2 + (usize::MAX - 32)]:,
-        [(); S1 - S2]:,
+pub const fn b3<const S1: usize, const S2: usize>(a: Ternary<S1>, b: Ternary<S2>) -> Ternary<S1>
+where
+    [(); S1 + (usize::MAX - 32)]:,
+    [(); S2 + (usize::MAX - 32)]:,
+    [(); S1 - S2]:,
 {
     let Ternary { pos: a1, neg: a2 } = a;
     let Ternary { pos: b1, neg: b2 } = b;
     let (a2, b1) = mutually_exclusive((a2, b1));
     let (a1, b1) = minor_pair((a1, b1));
-    let ct = partial_add(Ternary::<S1> { pos: a1, neg: a2}, Ternary::<S2> { pos: b1, neg: b2});
+    let ct = partial_add(
+        Ternary::<S1> { pos: a1, neg: a2 },
+        Ternary::<S2> { pos: b1, neg: b2 },
+    );
     let Ternary { pos: c1, neg: c2 } = ct;
     let (c1, b2) = mutually_exclusive((c1, b2));
     let (c2, b2) = minor_pair((c2, b2));
-    let brackets = partial_add(Ternary::<S1> { pos: c2, neg: c1 }, Ternary::<S2> { pos: b2, neg: 0 });
+    let brackets = partial_add(
+        Ternary::<S1> { pos: c2, neg: c1 },
+        Ternary::<S2> { pos: b2, neg: 0 },
+    );
     let st = neg(brackets);
     st
 }

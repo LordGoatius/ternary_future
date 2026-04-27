@@ -1,9 +1,9 @@
 use std::fmt::{Binary, Debug, Display};
 
 mod add;
-mod sub;
 mod mul;
 mod shift;
+mod sub;
 mod tritwise;
 
 /// This data type represents a single ternary number, up to
@@ -15,19 +15,22 @@ mod tritwise;
 /// Based on Frieder & Luk, 1975.
 ///
 // TODO: Do we want to ensure that all bits at locations >= SIZE are 0?
-// This is likely what we want.
+// This is likely what we want? It *does* affect things *if* we allow conversion
+// and operations
 #[repr(C)]
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[derive_const(Default)]
 pub struct Ternary<const SIZE: usize>
-    where [(); SIZE + (usize::MAX - 32)]:
+where
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     pub(crate) pos: u32,
     pub(crate) neg: u32,
 }
 
-impl<const SIZE: usize> Ternary<SIZE> 
-    where [(); SIZE + (usize::MAX - 32)]:
+impl<const SIZE: usize> Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     pub const MAX: Self = {
         let pos = (1 << SIZE) - 1;
@@ -49,46 +52,50 @@ impl<const SIZE: usize> Ternary<SIZE>
 //== Helper Traits ==//
 
 impl<const SIZE: usize> Into<isize> for Ternary<SIZE>
-    where [(); SIZE + (usize::MAX - 32)]:
+where
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     fn into(self) -> isize {
         let mut sum = 0;
         for i in 0..SIZE {
-           sum += ((self.pos >> i) & 1) as isize * 3isize.pow(i as u32); 
-           sum -= ((self.neg >> i) & 1) as isize * 3isize.pow(i as u32); 
+            sum += ((self.pos >> i) & 1) as isize * 3isize.pow(i as u32);
+            sum -= ((self.neg >> i) & 1) as isize * 3isize.pow(i as u32);
         }
         sum
     }
 }
 
 impl<const SIZE: usize> Into<isize> for &Ternary<SIZE>
-    where [(); SIZE + (usize::MAX - 32)]:
+where
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     fn into(self) -> isize {
         let mut sum = 0;
         for i in 0..SIZE {
-           sum += ((self.pos >> i) & 1) as isize * 3isize.pow(i as u32); 
-           sum -= ((self.neg >> i) & 1) as isize * 3isize.pow(i as u32); 
+            sum += ((self.pos >> i) & 1) as isize * 3isize.pow(i as u32);
+            sum -= ((self.neg >> i) & 1) as isize * 3isize.pow(i as u32);
         }
         sum
     }
 }
 
 impl<const SIZE: usize> Into<isize> for &mut Ternary<SIZE>
-    where [(); SIZE + (usize::MAX - 32)]:
+where
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     fn into(self) -> isize {
         let mut sum = 0;
         for i in 0..SIZE {
-           sum += ((self.pos >> i) & 1) as isize * 3isize.pow(i as u32); 
-           sum -= ((self.neg >> i) & 1) as isize * 3isize.pow(i as u32); 
+            sum += ((self.pos >> i) & 1) as isize * 3isize.pow(i as u32);
+            sum -= ((self.neg >> i) & 1) as isize * 3isize.pow(i as u32);
         }
         sum
     }
 }
 
 impl<const SIZE: usize> Display for Ternary<SIZE>
-    where [(); SIZE + (usize::MAX - 32)]:
+where
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value: isize = self.into();
@@ -97,7 +104,8 @@ impl<const SIZE: usize> Display for Ternary<SIZE>
 }
 
 impl<const SIZE: usize> Binary for Ternary<SIZE>
-    where [(); SIZE + (usize::MAX - 32)]:
+where
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         // TODO: Buffer prints all right now. Change to take in formatting options?
@@ -105,14 +113,12 @@ impl<const SIZE: usize> Binary for Ternary<SIZE>
         let Ternary { pos, neg } = self;
         for i in (0..SIZE).rev() {
             match ((pos >> i) & 1, (neg >> i) & 1) {
-                (0, 1) => { buf[SIZE - i - 1] = b'T' }
-                (1, 0) => { buf[SIZE - i - 1] = b'1' }
-                _ => ()
+                (0, 1) => buf[SIZE - i - 1] = b'T',
+                (1, 0) => buf[SIZE - i - 1] = b'1',
+                _ => (),
             }
         }
-        write!(f, "{}", unsafe {
-            str::from_utf8_unchecked(&buf)
-        })
+        write!(f, "{}", unsafe { str::from_utf8_unchecked(&buf) })
     }
 }
 
