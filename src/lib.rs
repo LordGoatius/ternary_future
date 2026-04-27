@@ -30,8 +30,6 @@ pub struct MemEntry {
 ///   reads and writes must take in `&mut self`. That may need to be
 ///   changed to internal mutability managed by the [`MemoryDevice`]
 ///   itself.
-/// SIZES:
-/// - Devices are sized by pages.
 /// QUESTIONS:
 /// - DMA?
 #[expect(unused)]
@@ -47,6 +45,8 @@ pub trait MemoryDevice {
     /// Default impl that calls [`MemoryDevice::write_word`] in a loop
     fn write_words(&mut self, offset: Addr, value: &[Word]) { todo!() }
 
+    // NOTE: Remove these? We can write in a loop, but when reading we can't
+    // assume the internal representation can deref into a slice
     fn read_trytes(&mut self, offset: Addr) -> &[Tryte] { todo!() }
     fn read_words(&mut self, offset: Addr) -> &[Word] { todo!() }
 }

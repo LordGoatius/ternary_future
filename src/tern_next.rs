@@ -1,7 +1,9 @@
-use std::{fmt::{Binary, Debug, Display}, ops::{Add, Neg, Shl, Shr}};
+use std::{fmt::{Binary, Debug, Display}, ops::{Mul, Neg, Shl, Shr, Sub}};
 
 use crate::helper::neg;
 use crate::helper::add;
+
+mod add;
 
 /// This data type represents a single ternary number, up to
 /// 32 digits in length. It uses a BCT representation where
@@ -14,7 +16,7 @@ use crate::helper::add;
 // TODO: Do we want to ensure that all bits at locations >= SIZE are 0?
 // This is likely what we want.
 #[repr(C)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[derive_const(Default)]
 pub struct Ternary<const SIZE: usize>
     where [(); SIZE + (usize::MAX - 32)]:
@@ -71,15 +73,43 @@ impl<const S1: usize> Shr<isize> for Ternary<S1>
     }
 }
 
-impl<const S1: usize, const S2: usize> Add<Ternary<S2>> for Ternary<S1> 
+impl<const S1: usize, const S2: usize> Sub<Ternary<S2>> for Ternary<S1>
     where
         [(); S1 + (usize::MAX - 32)]:,
         [(); S2 + (usize::MAX - 32)]:,
         [(); S1 - S2]:,
 {
     type Output = Ternary<S1>;
-    fn add(self, rhs: Ternary<S2>) -> Self::Output {
-        add(self, rhs)
+    fn sub(self, rhs: Ternary<S2>) -> Self::Output {
+        add(self, -rhs)
+    }
+}
+
+impl<const S1: usize, const S2: usize> Mul<Ternary<S2>> for Ternary<S1>
+    where
+        [(); S1 + (usize::MAX - 32)]:,
+        [(); S2 + (usize::MAX - 32)]:,
+        [(); S1 - S2]:,
+{
+    type Output = Ternary<S1>;
+    fn mul(self, rhs: Ternary<S2>) -> Self::Output {
+        let mut acc: Ternary<S1> = Ternary::ZERO;
+        // Iterate over every trit in `rhs`
+        for i in 0..S2 {
+            acc += match (((rhs.pos >> i) & 1), ((rhs.neg >> i) & 1)) {
+                (1, 0) =>  {
+                    let Ternary { pos, neg } = self;
+                    Ternary { pos, neg }
+                },
+                (0, 1) => {
+                    let Ternary { pos, neg } = self;
+                    -Ternary { pos, neg }
+                },
+                _      => Ternary::<S2>::ZERO,
+            } << (i as isize);
+
+        }
+        acc
     }
 }
 
@@ -175,7 +205,7 @@ pub mod tests {
     }
 
     #[test]
-    fn test() {
+    fn tern_addition() {
         let mut ternary: Ternary<9> = Ternary::MIN;
 
         let tone: Ternary<9> = Ternary::ONE;
