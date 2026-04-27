@@ -1,3 +1,5 @@
+// I will pay for my hubris one day
+#![expect(incomplete_features)]
 #![feature(generic_const_exprs,
            const_default,
            derive_const,
