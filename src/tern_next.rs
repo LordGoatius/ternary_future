@@ -1,4 +1,4 @@
-use std::{fmt::{Binary, Debug, Display}, ops::{Add, Neg}};
+use std::{fmt::{Binary, Debug, Display}, ops::{Add, Neg, Shl, Shr}};
 
 use crate::helper::neg;
 use crate::helper::add;
@@ -10,6 +10,9 @@ use crate::helper::add;
 /// The first one represents the positive, and the second, negative.
 /// We arbitrarily choose 0,0 to be 0, and not 1,1.
 /// Based on Frieder & Luk, 1975.
+///
+// TODO: Do we want to ensure that all bits at locations >= SIZE are 0?
+// This is likely what we want.
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
 #[derive_const(Default)]
@@ -36,9 +39,38 @@ impl<const SIZE: usize> Ternary<SIZE>
     };
 
     pub const ZERO: Self = Ternary { pos: 0, neg: 0 };
+
+    pub const ONE: Self = Ternary { pos: 0b1, neg: 0 };
 }
 
-/// lhs SIZE > rhs SIZE. This is asserted.
+//== Ops ==//
+
+impl<const S1: usize> Shl<isize> for Ternary<S1>
+    where
+        [(); S1 + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<S1>;
+    fn shl(self, rhs: isize) -> Self::Output {
+        let Ternary { pos, neg } = self;
+        let pos = pos << rhs;
+        let neg = neg << rhs;
+        Ternary { pos, neg }
+    }
+}
+
+impl<const S1: usize> Shr<isize> for Ternary<S1>
+    where
+        [(); S1 + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<S1>;
+    fn shr(self, rhs: isize) -> Self::Output {
+        let Ternary { pos, neg } = self;
+        let pos = pos >> rhs;
+        let neg = neg >> rhs;
+        Ternary { pos, neg }
+    }
+}
+
 impl<const S1: usize, const S2: usize> Add<Ternary<S2>> for Ternary<S1> 
     where
         [(); S1 + (usize::MAX - 32)]:,
@@ -50,8 +82,6 @@ impl<const S1: usize, const S2: usize> Add<Ternary<S2>> for Ternary<S1>
         add(self, rhs)
     }
 }
-
-//== Ops ==//
 
 impl<const SIZE: usize> Neg for Ternary<SIZE> 
     where [(); SIZE + (usize::MAX - 32)]:
@@ -104,6 +134,7 @@ impl<const SIZE: usize> Binary for Ternary<SIZE>
     where [(); SIZE + (usize::MAX - 32)]:
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // TODO: Buffer prints all right now. Change to take in formatting options?
         let mut buf: [u8; SIZE] = [b'0'; SIZE];
         let Ternary { pos, neg } = self;
         for i in (0..SIZE).rev() {
@@ -145,15 +176,9 @@ pub mod tests {
 
     #[test]
     fn test() {
-        let mut ternary: Ternary<9> = Ternary {
-            pos: 0b000000000,
-            neg: 0b111111111,
-        };
+        let mut ternary: Ternary<9> = Ternary::MIN;
 
-        let tone: Ternary<9> = Ternary {
-            pos: 0b000000001,
-            neg: 0b000000000,
-        };
+        let tone: Ternary<9> = Ternary::ONE;
 
         // I know this looks redundant and stupid but I like it.
         let mut binary = -9841;
