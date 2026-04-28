@@ -1,6 +1,6 @@
 use std::ops::{BitOr, BitOrAssign};
 
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 // binary and ternary `or` functions like a `max` function on each bit/trit.
 #[inline]
@@ -172,7 +172,7 @@ where
 #[cfg(test)]
 pub mod tests {
     use super::or;
-    use crate::tern_next::Ternary;
+    use crate::Ternary;
 
     #[test]
     fn tern_or() {

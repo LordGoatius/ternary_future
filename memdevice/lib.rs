@@ -2,16 +2,10 @@
 #![expect(incomplete_features)]
 #![feature(
     generic_const_exprs,
-    const_default,
-    derive_const,
     const_trait_impl,
-    debug_closure_helpers
 )]
 
-pub mod helper;
-mod tern_next;
-
-use tern_next::Ternary;
+use balanced_ternary::Ternary;
 
 type Word = Ternary<27>;
 type Tryte = Ternary<9>;
@@ -39,6 +33,7 @@ pub struct MemEntry {
 ///   itself.
 /// QUESTIONS:
 /// - DMA?
+/// - Unaligned accesses for devices?
 #[expect(unused)]
 pub trait MemoryDevice {
     fn write_tryte(&mut self, offset: Addr, value: Tryte);

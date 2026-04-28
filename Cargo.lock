@@ -3,5 +3,12 @@
 version = 4
 
 [[package]]
-name = "ternmem_test"
+name = "balanced_ternary"
 version = "0.1.0"
+
+[[package]]
+name = "memdevice"
+version = "0.1.0"
+dependencies = [
+ "balanced_ternary",
+]

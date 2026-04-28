@@ -1,6 +1,6 @@
 use std::ops::{BitXor, BitXorAssign};
 
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 #[inline]
 pub const fn xor<const S1: usize, const S2: usize>(

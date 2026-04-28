@@ -1,4 +1,4 @@
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 pub mod shl;
 pub mod shr;

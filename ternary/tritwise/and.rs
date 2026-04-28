@@ -1,6 +1,6 @@
 use std::ops::{BitAnd, BitAndAssign};
 
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 // binary and ternary `and` functions like a `min` function on each bit/trit.
 #[inline]
@@ -175,7 +175,7 @@ where
 #[cfg(test)]
 pub mod tests {
     use super::and;
-    use crate::tern_next::Ternary;
+    use crate::Ternary;
 
     #[test]
     fn tern_and() {

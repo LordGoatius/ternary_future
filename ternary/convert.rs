@@ -128,7 +128,7 @@ where
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tern_next::{
+    use crate::{
         convert::{into_isize, into_ternary},
         Ternary,
     };

@@ -1,6 +1,6 @@
 use std::ops::{Div, DivAssign};
 
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 #[inline]
 pub fn div<const SIZE: usize>(_lhs: Ternary<SIZE>, _rhs: Ternary<SIZE>) -> Ternary<SIZE>
@@ -138,7 +138,7 @@ where
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tern_next::Ternary;
+    use crate::Ternary;
 
     #[test]
     fn tern_divtiplication() {

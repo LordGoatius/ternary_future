@@ -1,7 +1,7 @@
 use std::ops::{Sub, SubAssign};
 
 use crate::helper::add;
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 #[inline]
 pub fn sub<const SIZE: usize>(lhs: Ternary<SIZE>, rhs: Ternary<SIZE>) -> Ternary<SIZE>
@@ -139,7 +139,7 @@ where
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tern_next::Ternary;
+    use crate::Ternary;
 
     #[test]
     fn tern_substitution() {

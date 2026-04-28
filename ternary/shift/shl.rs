@@ -1,7 +1,7 @@
 use std::ops::{Shl, ShlAssign};
 
 use super::shl;
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 impl<const S1: usize> Shl<isize> for Ternary<S1>
 where

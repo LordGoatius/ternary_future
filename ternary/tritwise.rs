@@ -5,7 +5,7 @@ pub mod or;
 pub mod xor;
 
 use crate::helper::neg;
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 impl<const SIZE: usize> Neg for Ternary<SIZE>
 where

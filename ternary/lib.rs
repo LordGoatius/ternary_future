@@ -1,3 +1,13 @@
+#![expect(incomplete_features)]
+#![feature(
+    generic_const_exprs,
+    const_default,
+    derive_const,
+    const_trait_impl,
+    debug_closure_helpers
+)]
+
+mod helper;
 mod add;
 mod mul;
 mod sub;

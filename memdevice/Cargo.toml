@@ -1,0 +1,11 @@
+[package]
+name = "memdevice"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "memdevice"
+path = "lib.rs"
+
+[dependencies]
+balanced_ternary = { path = "../ternary" }

@@ -1,6 +1,6 @@
 //! Algorithms and definitions from (Frieder & Luk, 1975)
 
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 pub use self::a1 as mutually_exclusive;
 pub use self::a2 as minor_pair;

@@ -1,0 +1,14 @@
+[package]
+name = "balanced_ternary"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "balanced_ternary"
+path = "lib.rs"
+
+[dependencies]
+
+[features]
+default = []
+compile_fail = []

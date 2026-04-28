@@ -1,7 +1,7 @@
 use std::ops::{Shr, ShrAssign};
 
 use super::shr;
-use crate::tern_next::Ternary;
+use crate::Ternary;
 
 impl<const S1: usize> Shr<isize> for Ternary<S1>
 where

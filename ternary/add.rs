@@ -1,7 +1,7 @@
 use std::ops::{Add, AddAssign};
 
 use crate::helper::add;
-use crate::tern_next::Ternary;
+use super::Ternary;
 
 impl<const SIZE: usize> Add<Ternary<SIZE>> for Ternary<SIZE>
 where
@@ -131,7 +131,7 @@ where
 
 #[cfg(test)]
 pub mod tests {
-    use crate::tern_next::Ternary;
+    use crate::Ternary;
 
     #[test]
     fn tern_addition() {
