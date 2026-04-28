@@ -1,11 +1,20 @@
 // I will pay for my hubris one day
 #![expect(incomplete_features)]
-#![feature(generic_const_exprs, const_default, derive_const, const_trait_impl)]
+#![feature(
+    generic_const_exprs,
+    const_default,
+    derive_const,
+    const_trait_impl,
+    debug_closure_helpers
+)]
 
 pub mod helper;
 mod tern_next;
 
-use ternary::{tryte::Tryte, word::Word};
+use tern_next::Ternary;
+
+type Word = Ternary<27>;
+type Tryte = Ternary<9>;
 
 pub type Addr = Word;
 pub type Memory = &'static [MemEntry];

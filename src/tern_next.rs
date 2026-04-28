@@ -11,14 +11,14 @@ mod tritwise;
 /// one u32 represents a negative value, and the other half positive.
 /// Each bitwise index adds to be the total value of the trit.
 /// The first one represents the positive, and the second, negative.
-/// We arbitrarily choose 0,0 to be 0, and not 1,1.
+/// We choose 0,0 to be 0, and not 1,1.
 /// Based on Frieder & Luk, 1975.
 ///
 // TODO: Do we want to ensure that all bits at locations >= SIZE are 0?
 // This is likely what we want? It *does* affect things *if* we allow conversion
 // and operations
 #[repr(C)]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Eq, PartialEq)]
 #[derive_const(Default)]
 pub struct Ternary<const SIZE: usize>
 where
@@ -49,7 +49,7 @@ where
     pub const ONE: Self = Ternary { pos: 0b1, neg: 0 };
 }
 
-//== Helper Traits ==//
+//== Easy Helper Traits ==//
 
 impl<const SIZE: usize> Into<isize> for Ternary<SIZE>
 where
@@ -100,6 +100,18 @@ where
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let value: isize = self.into();
         write!(f, "{value}")
+    }
+}
+
+impl<const SIZE: usize> Debug for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct(&format!("Ternary<{SIZE}>"))
+            .field_with("pos", |f| write!(f, "{:b}", &self.pos))
+            .field_with("neg", |f| write!(f, "{:b}", &self.neg))
+            .finish()
     }
 }
 
