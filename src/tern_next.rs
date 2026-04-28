@@ -2,8 +2,9 @@ use std::fmt::{Binary, Debug, Display};
 
 mod add;
 mod mul;
-mod shift;
 mod sub;
+mod div;
+mod shift;
 mod tritwise;
 
 /// This data type represents a single ternary number, up to
