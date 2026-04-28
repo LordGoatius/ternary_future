@@ -6,6 +6,7 @@ mod sub;
 mod div;
 mod shift;
 mod tritwise;
+mod convert;
 
 /// This data type represents a single ternary number, up to
 /// 32 digits in length. It uses a BCT representation where
@@ -14,10 +15,6 @@ mod tritwise;
 /// The first one represents the positive, and the second, negative.
 /// We choose 0,0 to be 0, and not 1,1.
 /// Based on Frieder & Luk, 1975.
-///
-// TODO: Do we want to ensure that all bits at locations >= SIZE are 0?
-// This is likely what we want? It *does* affect things *if* we allow conversion
-// and operations
 #[repr(C)]
 #[derive(Clone, Copy, Eq, PartialEq)]
 #[derive_const(Default)]
@@ -47,50 +44,15 @@ where
 
     pub const ZERO: Self = Ternary { pos: 0, neg: 0 };
 
-    pub const ONE: Self = Ternary { pos: 0b1, neg: 0 };
-}
+    pub const ONE: Self = Ternary { pos:  0b1, neg:  0b0 };
+    pub const TWO: Self = Ternary { pos: 0b10, neg: 0b01 };
 
-//== Easy Helper Traits ==//
-
-impl<const SIZE: usize> Into<isize> for Ternary<SIZE>
-where
-    [(); SIZE + (usize::MAX - 32)]:,
-{
-    fn into(self) -> isize {
-        let mut sum = 0;
-        for i in 0..SIZE {
-            sum += ((self.pos >> i) & 1) as isize * 3isize.pow(i as u32);
-            sum -= ((self.neg >> i) & 1) as isize * 3isize.pow(i as u32);
+    pub fn pow(self, val: u32) -> Self {
+        let mut ret = Ternary::ONE;
+        for _ in 0..val {
+            ret *= self;
         }
-        sum
-    }
-}
-
-impl<const SIZE: usize> Into<isize> for &Ternary<SIZE>
-where
-    [(); SIZE + (usize::MAX - 32)]:,
-{
-    fn into(self) -> isize {
-        let mut sum = 0;
-        for i in 0..SIZE {
-            sum += ((self.pos >> i) & 1) as isize * 3isize.pow(i as u32);
-            sum -= ((self.neg >> i) & 1) as isize * 3isize.pow(i as u32);
-        }
-        sum
-    }
-}
-
-impl<const SIZE: usize> Into<isize> for &mut Ternary<SIZE>
-where
-    [(); SIZE + (usize::MAX - 32)]:,
-{
-    fn into(self) -> isize {
-        let mut sum = 0;
-        for i in 0..SIZE {
-            sum += ((self.pos >> i) & 1) as isize * 3isize.pow(i as u32);
-            sum -= ((self.neg >> i) & 1) as isize * 3isize.pow(i as u32);
-        }
-        sum
+        ret
     }
 }
 

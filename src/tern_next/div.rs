@@ -3,163 +3,135 @@ use std::ops::{Div, DivAssign};
 use crate::tern_next::Ternary;
 
 #[inline]
-pub fn div<const S1: usize, const S2: usize>(_lhs: Ternary<S1>, _rhs: Ternary<S2>) -> Ternary<S1>
+pub fn div<const SIZE: usize>(_lhs: Ternary<SIZE>, _rhs: Ternary<SIZE>) -> Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     todo!()
 }
 
-impl<const S1: usize, const S2: usize> Div<Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> Div<Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn div(self, rhs: Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn div(self, rhs: Ternary<SIZE>) -> Self::Output {
         div(self, rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Div<Ternary<S2>> for &Ternary<S1>
+impl<const SIZE: usize> Div<Ternary<SIZE>> for &Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn div(self, rhs: Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn div(self, rhs: Ternary<SIZE>) -> Self::Output {
         div(*self, rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Div<Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> Div<Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn div(self, rhs: Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn div(self, rhs: Ternary<SIZE>) -> Self::Output {
         div(*self, rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Div<&Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> Div<&Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn div(self, rhs: &Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn div(self, rhs: &Ternary<SIZE>) -> Self::Output {
         div(self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Div<&Ternary<S2>> for &Ternary<S1>
+impl<const SIZE: usize> Div<&Ternary<SIZE>> for &Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn div(self, rhs: &Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn div(self, rhs: &Ternary<SIZE>) -> Self::Output {
         div(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Div<&Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> Div<&Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn div(self, rhs: &Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn div(self, rhs: &Ternary<SIZE>) -> Self::Output {
         div(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Div<&mut Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> Div<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn div(self, rhs: &mut Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn div(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
         div(self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Div<&mut Ternary<S2>> for &Ternary<S1>
+impl<const SIZE: usize> Div<&mut Ternary<SIZE>> for &Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn div(self, rhs: &mut Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn div(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
         div(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Div<&mut Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> Div<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn div(self, rhs: &mut Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn div(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
         div(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> DivAssign<Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> DivAssign<Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn div_assign(&mut self, rhs: Ternary<S2>) {
+    fn div_assign(&mut self, rhs: Ternary<SIZE>) {
         *self = *self * rhs;
     }
 }
 
-impl<const S1: usize, const S2: usize> DivAssign<&Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> DivAssign<&Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn div_assign(&mut self, rhs: &Ternary<S2>) {
+    fn div_assign(&mut self, rhs: &Ternary<SIZE>) {
         *self = *self * *rhs;
     }
 }
 
-impl<const S1: usize, const S2: usize> DivAssign<&mut Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> DivAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn div_assign(&mut self, rhs: &mut Ternary<S2>) {
+    fn div_assign(&mut self, rhs: &mut Ternary<SIZE>) {
         *self = *self * *rhs;
     }
 }
 
-impl<const S1: usize, const S2: usize> DivAssign<&mut Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> DivAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn div_assign(&mut self, rhs: &mut Ternary<S2>) {
+    fn div_assign(&mut self, rhs: &mut Ternary<SIZE>) {
         **self = **self * *rhs;
     }
 }

@@ -54,11 +54,9 @@ where
 /// Given a = [a1, a2], b = [b1, 0]
 /// And b1 is minor to a1
 #[inline]
-pub const fn b2<const S1: usize, const S2: usize>(a: Ternary<S1>, b: Ternary<S2>) -> Ternary<S1>
+pub const fn b2<const SIZE: usize>(a: Ternary<SIZE>, b: Ternary<SIZE>) -> Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     let Ternary { pos: a1, neg: a2 } = a;
     let Ternary { pos: b1, neg: _ } = b;
@@ -76,26 +74,24 @@ where
 ///
 /// The consts here are to make sure the larger ternary size gets returned.
 #[inline]
-pub const fn b3<const S1: usize, const S2: usize>(a: Ternary<S1>, b: Ternary<S2>) -> Ternary<S1>
+pub const fn b3<const SIZE: usize>(a: Ternary<SIZE>, b: Ternary<SIZE>) -> Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     let Ternary { pos: a1, neg: a2 } = a;
     let Ternary { pos: b1, neg: b2 } = b;
     let (a2, b1) = mutually_exclusive((a2, b1));
     let (a1, b1) = minor_pair((a1, b1));
     let ct = partial_add(
-        Ternary::<S1> { pos: a1, neg: a2 },
-        Ternary::<S2> { pos: b1, neg: b2 },
+        Ternary::<SIZE> { pos: a1, neg: a2 },
+        Ternary::<SIZE> { pos: b1, neg: b2 },
     );
     let Ternary { pos: c1, neg: c2 } = ct;
     let (c1, b2) = mutually_exclusive((c1, b2));
     let (c2, b2) = minor_pair((c2, b2));
     let brackets = partial_add(
-        Ternary::<S1> { pos: c2, neg: c1 },
-        Ternary::<S2> { pos: b2, neg: 0 },
+        Ternary::<SIZE> { pos: c2, neg: c1 },
+        Ternary::<SIZE> { pos: b2, neg: 0 },
     );
     let st = neg(brackets);
     st

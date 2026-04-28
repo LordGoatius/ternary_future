@@ -3,154 +3,128 @@ use std::ops::{Add, AddAssign};
 use crate::helper::add;
 use crate::tern_next::Ternary;
 
-impl<const S1: usize, const S2: usize> Add<Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> Add<Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn add(self, rhs: Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn add(self, rhs: Ternary<SIZE>) -> Self::Output {
         add(self, rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Add<Ternary<S2>> for &Ternary<S1>
+impl<const SIZE: usize> Add<Ternary<SIZE>> for &Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn add(self, rhs: Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn add(self, rhs: Ternary<SIZE>) -> Self::Output {
         add(*self, rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Add<Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> Add<Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn add(self, rhs: Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn add(self, rhs: Ternary<SIZE>) -> Self::Output {
         add(*self, rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Add<&Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> Add<&Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn add(self, rhs: &Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn add(self, rhs: &Ternary<SIZE>) -> Self::Output {
         add(self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Add<&Ternary<S2>> for &Ternary<S1>
+impl<const SIZE: usize> Add<&Ternary<SIZE>> for &Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn add(self, rhs: &Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn add(self, rhs: &Ternary<SIZE>) -> Self::Output {
         add(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Add<&Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> Add<&Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn add(self, rhs: &Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn add(self, rhs: &Ternary<SIZE>) -> Self::Output {
         add(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Add<&mut Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> Add<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn add(self, rhs: &mut Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn add(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
         add(self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Add<&mut Ternary<S2>> for &Ternary<S1>
+impl<const SIZE: usize> Add<&mut Ternary<SIZE>> for &Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn add(self, rhs: &mut Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn add(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
         add(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> Add<&mut Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> Add<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn add(self, rhs: &mut Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn add(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
         add(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> AddAssign<Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> AddAssign<Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn add_assign(&mut self, rhs: Ternary<S2>) {
+    fn add_assign(&mut self, rhs: Ternary<SIZE>) {
         *self = *self + rhs;
     }
 }
 
-impl<const S1: usize, const S2: usize> AddAssign<&Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> AddAssign<&Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn add_assign(&mut self, rhs: &Ternary<S2>) {
+    fn add_assign(&mut self, rhs: &Ternary<SIZE>) {
         *self = *self + *rhs;
     }
 }
 
-impl<const S1: usize, const S2: usize> AddAssign<&mut Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> AddAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn add_assign(&mut self, rhs: &mut Ternary<S2>) {
+    fn add_assign(&mut self, rhs: &mut Ternary<SIZE>) {
         *self = *self + *rhs;
     }
 }
 
-impl<const S1: usize, const S2: usize> AddAssign<&mut Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> AddAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn add_assign(&mut self, rhs: &mut Ternary<S2>) {
+    fn add_assign(&mut self, rhs: &mut Ternary<SIZE>) {
         **self = **self + *rhs;
     }
 }
