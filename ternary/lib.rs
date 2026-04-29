@@ -8,6 +8,10 @@
 )]
 #![cfg_attr(not(test), no_std)]
 
+#![cfg_attr(test, feature(test))]
+
+use core::cmp::Ordering;
+
 mod helper;
 mod add;
 mod mul;
@@ -85,6 +89,19 @@ where
         pos |= trit.pos << index;
         neg |= trit.neg << index;
         *self = Ternary { pos, neg }
+    }
+
+    pub(crate) fn sign_innner(self) -> Ordering {
+        let Ternary { pos, neg } = self;
+        pos.cmp(&neg)
+    }
+
+    pub fn sign(self) -> Trit {
+        return match self.sign_innner() {
+            Ordering::Less => -Trit::ONE,
+            Ordering::Equal => Trit::ZERO,
+            Ordering::Greater => Trit::ONE,
+        }
     }
 }
 

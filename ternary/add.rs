@@ -132,6 +132,7 @@ where
 #[cfg(test)]
 pub mod tests {
     use crate::Ternary;
+    extern crate test;
 
     #[test]
     fn tern_addition() {
@@ -149,5 +150,33 @@ pub mod tests {
             ternary = ternary + tone;
             binary = binary + bone;
         }
+    }
+
+    #[bench]
+    fn tern_bench(b: &mut test::Bencher) {
+        let mut ternary: Ternary<9> = Ternary::MIN;
+
+        let tone: Ternary<9> = Ternary::ONE;
+
+        b.iter(|| {
+            for _ in 0..(3usize.pow(9)) {
+                ternary = core::hint::black_box(ternary + tone);
+            }
+        });
+
+        println!("0t{ternary:b}")
+    }
+
+    #[bench]
+    fn bin_bench_cmp(b: &mut test::Bencher) {
+        let mut binary = -9841;
+
+        b.iter(|| {
+            for _ in 0..(3usize.pow(9)) {
+                binary = core::hint::black_box(binary + 1);
+            }
+        });
+
+        println!("0b{binary:b}")
     }
 }
