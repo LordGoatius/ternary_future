@@ -7,7 +7,18 @@ pub fn div<const SIZE: usize>(lhs: Ternary<SIZE>, rhs: Ternary<SIZE>) -> Option<
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
-    todo!()
+    // TODO: I give up on division for now
+    // I hope to never have to implement division ever again
+    if rhs == Ternary::ZERO {
+        None
+    } else {
+        // This is my greatest shame
+        let val1: isize = lhs.into();
+        let val2: isize = rhs.into();
+        let q = val1.div_euclid(val2).try_into().expect("Couldn't convert into ternary");
+        let r = val1.rem_euclid(val2).try_into().expect("Couldn't convert into ternary");
+        Some((q, r))
+    }
 }
 
 impl<const SIZE: usize> Div<Ternary<SIZE>> for Ternary<SIZE>
