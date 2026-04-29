@@ -177,6 +177,6 @@ pub mod tests {
     #[should_panic]
     fn tern_conversion_fail() {
         let num: isize = (1 << 16) - 1;
-        let t: Ternary<9> = num.try_into().unwrap();
+        let _t: Ternary<9> = num.try_into().unwrap();
     }
 }

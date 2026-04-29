@@ -17,6 +17,9 @@ mod shift;
 mod tritwise;
 mod convert;
 mod display;
+mod ord;
+
+pub type Trit = Ternary<1>;
 
 /// This data type represents a single ternary number, up to
 /// 32 digits in length. It uses a BCT representation where
@@ -63,6 +66,25 @@ where
             ret *= self;
         }
         ret
+    }
+
+    pub fn get_trit(self, index: usize) -> Trit {
+        let Ternary { pos, neg } = self;
+        let pos = (pos >> index) & 1;
+        let neg = (neg >> index) & 1;
+        Ternary::<1> { pos, neg }
+    }
+
+    pub fn set_trit(&mut self, trit: Trit, index: usize) {
+        assert!(trit.pos.leading_zeros() >= 31);
+        assert!(trit.neg.leading_zeros() >= 31);
+        let Ternary { mut pos, mut neg } = *self;
+        let mask = !(1 << index);
+        pos &= mask;
+        neg &= mask;
+        pos |= trit.pos << index;
+        neg |= trit.neg << index;
+        *self = Ternary { pos, neg }
     }
 }
 

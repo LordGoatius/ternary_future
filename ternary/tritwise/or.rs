@@ -4,11 +4,9 @@ use crate::Ternary;
 
 // binary and ternary `or` functions like a `max` function on each bit/trit.
 #[inline]
-pub const fn or<const S1: usize, const S2: usize>(lhs: Ternary<S1>, rhs: Ternary<S2>) -> Ternary<S1>
+pub const fn or<const SIZE: usize>(lhs: Ternary<SIZE>, rhs: Ternary<SIZE>) -> Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
     let neg = lhs.neg & rhs.neg;
     let pos = lhs.pos | rhs.pos;
@@ -16,156 +14,130 @@ where
     Ternary { pos, neg }
 }
 
-impl<const S1: usize, const S2: usize> BitOr<Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> BitOr<Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
+    type Output = Ternary<SIZE>;
 
-    fn bitor(self, rhs: Ternary<S2>) -> Self::Output {
+    fn bitor(self, rhs: Ternary<SIZE>) -> Self::Output {
         or(self, rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOr<Ternary<S2>> for &Ternary<S1>
+impl<const SIZE: usize> BitOr<Ternary<SIZE>> for &Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn bitor(self, rhs: Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn bitor(self, rhs: Ternary<SIZE>) -> Self::Output {
         or(*self, rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOr<Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> BitOr<Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn bitor(self, rhs: Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn bitor(self, rhs: Ternary<SIZE>) -> Self::Output {
         or(*self, rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOr<&Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> BitOr<&Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn bitor(self, rhs: &Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn bitor(self, rhs: &Ternary<SIZE>) -> Self::Output {
         or(self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOr<&Ternary<S2>> for &Ternary<S1>
+impl<const SIZE: usize> BitOr<&Ternary<SIZE>> for &Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn bitor(self, rhs: &Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn bitor(self, rhs: &Ternary<SIZE>) -> Self::Output {
         or(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOr<&Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> BitOr<&Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn bitor(self, rhs: &Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn bitor(self, rhs: &Ternary<SIZE>) -> Self::Output {
         or(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOr<&mut Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> BitOr<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn bitor(self, rhs: &mut Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn bitor(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
         or(self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOr<&mut Ternary<S2>> for &Ternary<S1>
+impl<const SIZE: usize> BitOr<&mut Ternary<SIZE>> for &Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn bitor(self, rhs: &mut Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn bitor(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
         or(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOr<&mut Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> BitOr<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    type Output = Ternary<S1>;
-    fn bitor(self, rhs: &mut Ternary<S2>) -> Self::Output {
+    type Output = Ternary<SIZE>;
+    fn bitor(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
         or(*self, *rhs)
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOrAssign<Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> BitOrAssign<Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn bitor_assign(&mut self, rhs: Ternary<S2>) {
-        *self = *self & rhs;
+    fn bitor_assign(&mut self, rhs: Ternary<SIZE>) {
+        *self = *self | rhs;
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOrAssign<&Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> BitOrAssign<&Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn bitor_assign(&mut self, rhs: &Ternary<S2>) {
-        *self = *self & *rhs;
+    fn bitor_assign(&mut self, rhs: &Ternary<SIZE>) {
+        *self = *self | *rhs;
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOrAssign<&mut Ternary<S2>> for Ternary<S1>
+impl<const SIZE: usize> BitOrAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn bitor_assign(&mut self, rhs: &mut Ternary<S2>) {
-        *self = *self & *rhs;
+    fn bitor_assign(&mut self, rhs: &mut Ternary<SIZE>) {
+        *self = *self | *rhs;
     }
 }
 
-impl<const S1: usize, const S2: usize> BitOrAssign<&mut Ternary<S2>> for &mut Ternary<S1>
+impl<const SIZE: usize> BitOrAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
-    [(); S1 + (usize::MAX - 32)]:,
-    [(); S2 + (usize::MAX - 32)]:,
-    [(); S1 - S2]:,
+    [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn bitor_assign(&mut self, rhs: &mut Ternary<S2>) {
-        **self = **self & *rhs;
+    fn bitor_assign(&mut self, rhs: &mut Ternary<SIZE>) {
+        **self = **self | *rhs;
     }
 }
 
