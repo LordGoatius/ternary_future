@@ -1,4 +1,4 @@
-use std::ops::{BitAnd, BitAndAssign};
+use core::ops::{BitAnd, BitAndAssign};
 
 use crate::Ternary;
 

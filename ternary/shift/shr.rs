@@ -1,4 +1,4 @@
-use std::ops::{Shr, ShrAssign};
+use core::ops::{Shr, ShrAssign};
 
 use super::shr;
 use crate::Ternary;

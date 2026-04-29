@@ -1,4 +1,4 @@
-use std::ops::Neg;
+use core::ops::Neg;
 
 pub mod and;
 pub mod or;

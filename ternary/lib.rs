@@ -6,6 +6,7 @@
     const_trait_impl,
     debug_closure_helpers
 )]
+#![cfg_attr(not(test), no_std)]
 
 mod helper;
 mod add;

@@ -1,4 +1,4 @@
-use std::ops::{Shl, ShlAssign};
+use core::ops::{Shl, ShlAssign};
 
 use super::shl;
 use crate::Ternary;

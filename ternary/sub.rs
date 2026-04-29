@@ -1,4 +1,4 @@
-use std::ops::{Sub, SubAssign};
+use core::ops::{Sub, SubAssign};
 
 use crate::helper::add;
 use crate::Ternary;

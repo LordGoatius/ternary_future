@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign};
+use core::ops::{Add, AddAssign};
 
 use crate::helper::add;
 use super::Ternary;
