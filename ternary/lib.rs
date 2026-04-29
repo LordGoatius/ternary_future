@@ -4,7 +4,8 @@
     const_default,
     derive_const,
     const_trait_impl,
-    debug_closure_helpers
+    debug_closure_helpers,
+    const_ops,
 )]
 #![cfg_attr(not(test), no_std)]
 
@@ -72,14 +73,14 @@ where
         ret
     }
 
-    pub fn get_trit(self, index: usize) -> Trit {
+    pub const fn get_trit(self, index: usize) -> Trit {
         let Ternary { pos, neg } = self;
         let pos = (pos >> index) & 1;
         let neg = (neg >> index) & 1;
         Ternary::<1> { pos, neg }
     }
 
-    pub fn set_trit(&mut self, trit: Trit, index: usize) {
+    pub const fn set_trit(&mut self, trit: Trit, index: usize) {
         assert!(trit.pos.leading_zeros() >= 31);
         assert!(trit.neg.leading_zeros() >= 31);
         let Ternary { mut pos, mut neg } = *self;
@@ -102,6 +103,26 @@ where
             Ordering::Equal => Trit::ZERO,
             Ordering::Greater => Trit::ONE,
         }
+    }
+
+    pub const fn from_str(str: &str) -> Self {
+        let mut val = Ternary::ZERO;
+        let bytes = str.as_bytes();
+        let ind = str.len();
+        let mut i = ind - 1;
+        let mut char = bytes[i];
+        while i != 0 {
+            match char {
+                b'0' => (),
+                b'1' => val.set_trit(Trit::ONE, i),
+                b'T' | b't' => val.set_trit(-Trit::ONE, i),
+                _ => panic!("Invalid char in ternary conversion")
+            }
+
+            i -= 1;
+            char = bytes[i]
+        }
+        val
     }
 }
 

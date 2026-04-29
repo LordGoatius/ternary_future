@@ -1,0 +1,11 @@
+[package]
+name = "septivigntimal"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "septivigntimal"
+path = "lib.rs"
+
+[dependencies]
+balanced_ternary = { path = "../ternary" }

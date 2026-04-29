@@ -12,3 +12,10 @@ version = "0.1.0"
 dependencies = [
  "balanced_ternary",
 ]
+
+[[package]]
+name = "septivigntimal"
+version = "0.1.0"
+dependencies = [
+ "balanced_ternary",
+]

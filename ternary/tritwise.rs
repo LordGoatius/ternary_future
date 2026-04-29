@@ -7,7 +7,7 @@ pub mod xor;
 use crate::helper::neg;
 use crate::Ternary;
 
-impl<const SIZE: usize> Neg for Ternary<SIZE>
+impl<const SIZE: usize> const Neg for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
