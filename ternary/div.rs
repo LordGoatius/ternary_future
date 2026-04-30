@@ -116,7 +116,7 @@ where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn div_assign(&mut self, rhs: Ternary<SIZE>) {
-        *self = *self * rhs;
+        *self = *self / rhs;
     }
 }
 
@@ -125,7 +125,7 @@ where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn div_assign(&mut self, rhs: &Ternary<SIZE>) {
-        *self = *self * *rhs;
+        *self /= *rhs;
     }
 }
 
@@ -134,7 +134,7 @@ where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn div_assign(&mut self, rhs: &mut Ternary<SIZE>) {
-        *self = *self * *rhs;
+        *self /= *rhs;
     }
 }
 
@@ -143,7 +143,7 @@ where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn div_assign(&mut self, rhs: &mut Ternary<SIZE>) {
-        **self = **self * *rhs;
+        **self /= *rhs;
     }
 }
 
@@ -151,11 +151,9 @@ where
 pub mod tests {
     use crate::Ternary;
 
+    // TODO: Better div test lol
     #[test]
     fn tern_division() {
-        let one: Ternary<9> = Ternary::ONE;
-        let two: Ternary<9> = Ternary::ONE + Ternary::<9>::ONE;
-
         let three: Ternary<9> = Ternary::ONE << 1;
         let nine: Ternary<9> = Ternary::ONE << 2;
         let twenty_seven: Ternary<9> = Ternary::ONE << 3;

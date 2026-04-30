@@ -3,6 +3,10 @@
 version = 4
 
 [[package]]
+name = "JTC-1701"
+version = "0.1.0"
+
+[[package]]
 name = "balanced_ternary"
 version = "0.1.0"
 

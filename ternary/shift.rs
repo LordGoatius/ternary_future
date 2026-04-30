@@ -3,7 +3,7 @@ use crate::Ternary;
 pub mod shl;
 pub mod shr;
 
-fn shl<const SIZE: usize>(lhs: Ternary<SIZE>, rhs: isize) -> Ternary<SIZE>
+const fn shl<const SIZE: usize>(lhs: Ternary<SIZE>, rhs: isize) -> Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -13,7 +13,7 @@ where
     Ternary { pos, neg }
 }
 
-fn shr<const SIZE: usize>(lhs: Ternary<SIZE>, rhs: isize) -> Ternary<SIZE>
+const fn shr<const SIZE: usize>(lhs: Ternary<SIZE>, rhs: isize) -> Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {

@@ -65,8 +65,7 @@ where
     let s1 = x1 & !b1;
     let s2 = x2 | a2;
     let (s1, s2) = mutually_exclusive((s1, s2));
-    let st = Ternary { pos: s1, neg: s2 };
-    st
+    Ternary { pos: s1, neg: s2 }
 }
 
 /// Algorithm b3 in (Frieder & Luk, 1975)
@@ -93,6 +92,5 @@ where
         Ternary::<SIZE> { pos: c2, neg: c1 },
         Ternary::<SIZE> { pos: b2, neg: 0 },
     );
-    let st = neg(brackets);
-    st
+    neg(brackets)
 }

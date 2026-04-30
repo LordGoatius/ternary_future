@@ -1,13 +1,15 @@
 use super::Ternary;
 
-fn into_isize<const SIZE: usize>(val: Ternary<SIZE>) -> isize
+const fn into_isize<const SIZE: usize>(val: Ternary<SIZE>) -> isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     let mut sum = 0;
-    for i in 0..SIZE {
+    let mut i = 0;
+    while i < SIZE {
         sum += ((val.pos >> i) & 1) as isize * 3isize.pow(i as u32);
         sum -= ((val.neg >> i) & 1) as isize * 3isize.pow(i as u32);
+        i += 1;
     }
     sum
 }
@@ -16,7 +18,7 @@ where
 // b: original radix (2)
 // a_k: kth bit
 // $\sum_{k=0}^{n} a_k b^k
-fn into_ternary<const SIZE: usize>(val: isize) -> Ternary<SIZE>
+const fn into_ternary<const SIZE: usize>(val: isize) -> Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -29,10 +31,12 @@ where
     // `ceil(log_2(3^SIZE))` bits is all the information required to
     // represent a SIZE trit number.
     // In the exposed conversion impl, we will check this.
-    for k in 0..const { 3usize.pow(SIZE as u32).ilog2() + 1 } {
-        let bk = Ternary::TWO.pow(k as u32);
+    let mut k = 0;
+    while k < const { 3usize.pow(SIZE as u32).ilog2() + 1 } {
+        let bk = Ternary::TWO.pow(k);
         let pos = (val >> k) as u32 & 1;
         sum += Ternary { pos, neg: 0 } * bk;
+        k += 1;
     }
     if sign == 1 {
         sum
@@ -44,30 +48,30 @@ where
 // NOTE: An `isize` is always capable of holding a larger number
 // than a 32 bit ternary number
 
-impl<const SIZE: usize> Into<isize> for Ternary<SIZE>
+impl<const SIZE: usize> const From<Ternary<SIZE>> for isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn into(self) -> isize {
-        into_isize(self)
+    fn from(val: Ternary<SIZE>) -> isize {
+        into_isize(val)
     }
 }
 
-impl<const SIZE: usize> Into<isize> for &Ternary<SIZE>
+impl<const SIZE: usize> const From<&Ternary<SIZE>> for isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn into(self) -> isize {
-        into_isize(*self)
+    fn from(val: &Ternary<SIZE>) -> isize {
+        into_isize(*val)
     }
 }
 
-impl<const SIZE: usize> Into<isize> for &mut Ternary<SIZE>
+impl<const SIZE: usize> const From<&mut Ternary<SIZE>> for isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
-    fn into(self) -> isize {
-        into_isize(*self)
+    fn from(val: &mut Ternary<SIZE>) -> isize {
+        into_isize(*val)
     }
 }
 
@@ -76,14 +80,14 @@ where
 #[derive(Debug)]
 pub struct TernaryConversionError;
 
-impl<const SIZE: usize> TryInto<Ternary<SIZE>> for isize
+impl<const SIZE: usize> const TryInto<Ternary<SIZE>> for isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     type Error = TernaryConversionError;
     fn try_into(self) -> Result<Ternary<SIZE>, TernaryConversionError> {
         if self.abs().leading_zeros()
-            > const { (size_of::<isize>() * 8) as u32 - (3usize.pow(SIZE as u32).ilog2() + 1) }
+            > const { isize::BITS - (3usize.pow(SIZE as u32).ilog2() + 1) }
         {
             Ok(into_ternary(self))
         } else {
@@ -92,14 +96,14 @@ where
     }
 }
 
-impl<const SIZE: usize> TryInto<Ternary<SIZE>> for &isize
+impl<const SIZE: usize> const TryInto<Ternary<SIZE>> for &isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     type Error = TernaryConversionError;
     fn try_into(self) -> Result<Ternary<SIZE>, TernaryConversionError> {
         if self.abs().leading_zeros()
-            > const { (size_of::<isize>() * 8) as u32 - (3usize.pow(SIZE as u32).ilog2() + 1) }
+            > const { isize::BITS - (3usize.pow(SIZE as u32).ilog2() + 1) }
         {
             Ok(into_ternary(*self))
         } else {
@@ -110,14 +114,14 @@ where
 
 // TODO: Fix the conversion errors, because it will succeed for some values it should fail at.
 
-impl<const SIZE: usize> TryInto<Ternary<SIZE>> for &mut isize
+impl<const SIZE: usize> const TryInto<Ternary<SIZE>> for &mut isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     type Error = TernaryConversionError;
     fn try_into(self) -> Result<Ternary<SIZE>, TernaryConversionError> {
         if self.abs().leading_zeros()
-            > const { (size_of::<isize>() * 8) as u32 - (3usize.pow(SIZE as u32).ilog2() + 1) }
+            > const { isize::BITS - (3usize.pow(SIZE as u32).ilog2() + 1) }
         {
             Ok(into_ternary(*self))
         } else {

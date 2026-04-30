@@ -13,7 +13,7 @@ where
     todo!()
 }
 
-impl<const SIZE: usize> BitXor<Ternary<SIZE>> for Ternary<SIZE>
+impl<const SIZE: usize> const BitXor<Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -24,7 +24,7 @@ where
     }
 }
 
-impl<const SIZE: usize> BitXor<Ternary<SIZE>> for &Ternary<SIZE>
+impl<const SIZE: usize> const BitXor<Ternary<SIZE>> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -34,7 +34,7 @@ where
     }
 }
 
-impl<const SIZE: usize> BitXor<Ternary<SIZE>> for &mut Ternary<SIZE>
+impl<const SIZE: usize> const BitXor<Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -44,7 +44,7 @@ where
     }
 }
 
-impl<const SIZE: usize> BitXor<&Ternary<SIZE>> for Ternary<SIZE>
+impl<const SIZE: usize> const BitXor<&Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -54,7 +54,7 @@ where
     }
 }
 
-impl<const SIZE: usize> BitXor<&Ternary<SIZE>> for &Ternary<SIZE>
+impl<const SIZE: usize> const BitXor<&Ternary<SIZE>> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -64,7 +64,7 @@ where
     }
 }
 
-impl<const SIZE: usize> BitXor<&Ternary<SIZE>> for &mut Ternary<SIZE>
+impl<const SIZE: usize> const BitXor<&Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -74,7 +74,7 @@ where
     }
 }
 
-impl<const SIZE: usize> BitXor<&mut Ternary<SIZE>> for Ternary<SIZE>
+impl<const SIZE: usize> const BitXor<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -84,7 +84,7 @@ where
     }
 }
 
-impl<const SIZE: usize> BitXor<&mut Ternary<SIZE>> for &Ternary<SIZE>
+impl<const SIZE: usize> const BitXor<&mut Ternary<SIZE>> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -94,7 +94,7 @@ where
     }
 }
 
-impl<const SIZE: usize> BitXor<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
+impl<const SIZE: usize> const BitXor<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -104,38 +104,38 @@ where
     }
 }
 
-impl<const SIZE: usize> BitXorAssign<Ternary<SIZE>> for Ternary<SIZE>
+impl<const SIZE: usize> const BitXorAssign<Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn bitxor_assign(&mut self, rhs: Ternary<SIZE>) {
-        *self = *self & rhs;
+        *self = *self ^ rhs;
     }
 }
 
-impl<const SIZE: usize> BitXorAssign<&Ternary<SIZE>> for Ternary<SIZE>
+impl<const SIZE: usize> const BitXorAssign<&Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn bitxor_assign(&mut self, rhs: &Ternary<SIZE>) {
-        *self = *self & *rhs;
+        *self ^= *rhs;
     }
 }
 
-impl<const SIZE: usize> BitXorAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
+impl<const SIZE: usize> const BitXorAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn bitxor_assign(&mut self, rhs: &mut Ternary<SIZE>) {
-        *self = *self & *rhs;
+        *self ^= *rhs;
     }
 }
 
-impl<const SIZE: usize> BitXorAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
+impl<const SIZE: usize> const BitXorAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn bitxor_assign(&mut self, rhs: &mut Ternary<SIZE>) {
-        **self = **self & *rhs;
+        **self ^= *rhs;
     }
 }

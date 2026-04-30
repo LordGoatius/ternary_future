@@ -3,7 +3,7 @@ use core::cmp::Ordering;
 use crate::Ternary;
 
 // TODO: Bitwise operations that can do better than this? Subtraction isn't ideal.
-pub fn cmp<const SIZE: usize>(val1: Ternary<SIZE>, val2: Ternary<SIZE>) -> Ordering
+pub const fn cmp<const SIZE: usize>(val1: Ternary<SIZE>, val2: Ternary<SIZE>) -> Ordering
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -15,7 +15,7 @@ where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(cmp(*self, *other))
+        Some(self.cmp(other))
     }
 }
 
@@ -24,7 +24,7 @@ where
     [(); SIZE + (usize::MAX - 32)]:,
 {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.partial_cmp(other).unwrap()
+        cmp(*self, *other)
     }
 }
 

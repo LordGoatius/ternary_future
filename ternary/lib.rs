@@ -6,6 +6,8 @@
     const_trait_impl,
     debug_closure_helpers,
     const_ops,
+    const_cmp,
+    const_convert,
 )]
 #![cfg_attr(not(test), no_std)]
 
@@ -34,8 +36,8 @@ pub type Trit = Ternary<1>;
 /// We choose 0,0 to be 0, and not 1,1.
 /// Based on Frieder & Luk, 1975.
 #[repr(C)]
-#[derive(Clone, Copy, Eq, PartialEq)]
-#[derive_const(Default)]
+#[derive(Clone, Copy)]
+#[derive_const(Default, Eq, PartialEq)]
 pub struct Ternary<const SIZE: usize>
 where
     [(); SIZE + (usize::MAX - 32)]:,
@@ -65,10 +67,12 @@ where
     pub const ONE: Self = Ternary { pos:  0b1, neg:  0b0 };
     pub const TWO: Self = Ternary { pos: 0b10, neg: 0b01 };
 
-    pub fn pow(self, val: u32) -> Self {
+    pub const fn pow(self, val: u32) -> Self {
         let mut ret = Ternary::ONE;
-        for _ in 0..val {
+        let mut i = 0;
+        while i < val {
             ret *= self;
+            i += 1;
         }
         ret
     }
@@ -92,13 +96,13 @@ where
         *self = Ternary { pos, neg }
     }
 
-    pub(crate) fn sign_innner(self) -> Ordering {
+    pub(crate) const fn sign_innner(self) -> Ordering {
         let Ternary { pos, neg } = self;
         pos.cmp(&neg)
     }
 
     pub fn sign(self) -> Trit {
-        return match self.sign_innner() {
+        match self.sign_innner() {
             Ordering::Less => -Trit::ONE,
             Ordering::Equal => Trit::ZERO,
             Ordering::Greater => Trit::ONE,
@@ -118,7 +122,6 @@ where
                 b'T' | b't' => val.set_trit(-Trit::ONE, i),
                 _ => panic!("Invalid char in ternary conversion")
             }
-
             i -= 1;
             char = bytes[i]
         }

@@ -1,0 +1,10 @@
+[package]
+name = "JTC-1701"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "JTC-1701"
+path = "lib.rs"
+
+[dependencies]

@@ -1,9 +1,7 @@
 // I will pay for my hubris one day
 #![expect(incomplete_features)]
-#![feature(
-    generic_const_exprs,
-    const_trait_impl,
-)]
+#![allow(clippy::doc_lazy_continuation)]
+#![feature(generic_const_exprs, const_trait_impl)]
 
 use balanced_ternary::Ternary;
 
