@@ -1,16 +1,31 @@
 use core::ops::{BitXor, BitXorAssign};
 
-use crate::Ternary;
+use crate::{
+    helper::neg,
+    tritwise::{and::and, or::or},
+    Ternary,
+};
 
+/// Truth Table
+/// A xor B
+///            B
+///        −1  0  +1
+///       +-----------
+///    −1 | −1  0  +1
+/// A   0 |  0  0  0
+///    +1 | +1  0  −1
+/// 
 #[inline]
 pub const fn xor<const SIZE: usize>(
-    _lhs: Ternary<SIZE>,
-    _rhs: Ternary<SIZE>,
+    lhs: Ternary<SIZE>,
+    rhs: Ternary<SIZE>,
 ) -> Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
-    todo!()
+    // TODO: Replace with better and faster impl.
+    // Don't know how much the compiler can optimize this
+    and(or(lhs, rhs), neg(and(lhs, rhs)))
 }
 
 impl<const SIZE: usize> const BitXor<Ternary<SIZE>> for Ternary<SIZE>
