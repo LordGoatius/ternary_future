@@ -114,18 +114,18 @@ where
     pub const fn from_str(str: &str) -> Self {
         let mut val = Ternary::ZERO;
         let bytes = str.as_bytes();
-        let ind = str.len();
-        let mut i = ind - 1;
-        let mut char = bytes[i];
-        while i != 0 {
+        let mut i = 0;
+        let len = str.len();
+        let mut char;
+        while i < len {
+            char = bytes[i];
             match char {
                 b'0' => (),
-                b'1' => val.set_trit(Trit::ONE, i),
-                b'T' | b't' => val.set_trit(-Trit::ONE, i),
+                b'1' => val.set_trit(Trit::ONE, len - 1- i),
+                b'T' | b't' => val.set_trit(-Trit::ONE, len - 1- i),
                 _ => panic!("Invalid char in ternary conversion")
             }
-            i -= 1;
-            char = bytes[i]
+            i += 1;
         }
         val
     }
@@ -142,6 +142,7 @@ where
         Ternary { pos, neg }
     }
 
+    #[inline]
     pub const fn extend<const S2: usize>(self) -> Ternary<S2>
     where
         [(); S2 + (usize::MAX - 32)]:,
@@ -149,8 +150,44 @@ where
         let Ternary { pos, neg } = self;
         Ternary { pos, neg }
     }
+
+    /// Set `S2` trits of `self` to `val`, starting at `index`
+    #[inline]
+    pub const fn set<const S2: usize>(self, val: Ternary<S2>, index: u32) -> Self
+    where
+        [(); S2 + (usize::MAX - 32)]:,
+    {
+        let Ternary { pos, neg } = self;
+        let Ternary { pos: posval, neg: negval } = val;
+
+        let mask = ((1 << S2) - 1) << index;
+        // Erase bits
+        let pos = pos & !mask;
+        let neg = neg & !mask;
+
+        // Set bits
+        let pos = pos | ((posval & (mask >> index)) << index);
+        let neg = neg | ((negval & (mask >> index)) << index);
+
+        Ternary { pos, neg }
+    }
 }
 
+
+pub const fn concat<const S1: usize, const S2: usize, const S3: usize>(val1: Ternary<S1>, val2: Ternary<S2>) -> Ternary<{ S1 + S2 }>
+where
+    [(); S1 + (usize::MAX - 32)]:,
+    [(); S2 + (usize::MAX - 32)]:,
+    [(); (S1 + S2) + (usize::MAX - 32)]:,
+{
+    let Ternary { pos: pos1, neg: neg1 } = val1;
+    let Ternary { pos: pos2, neg: neg2 } = val2;
+
+    let pos = (pos1 << S2) | (pos2 & ((1 << S2) - 1));
+    let neg = (neg1 << S2) | (neg2 & ((1 << S2) - 1));
+
+    Ternary { pos, neg }
+}
 #[cfg(test)]
 pub mod tests {
     /// Used to toggle compile time tests. If I let it compile,

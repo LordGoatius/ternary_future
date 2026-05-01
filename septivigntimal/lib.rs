@@ -33,3 +33,47 @@ pub const J:    Tribble = Tribble::from_str("101");
 pub const K:    Tribble = Tribble::from_str("11T");
 pub const L:    Tribble = Tribble::from_str("110");
 pub const M:    Tribble = Tribble::from_str("111");
+
+#[cfg(test)]
+pub mod tests {
+    use itertools::Itertools;
+
+    use crate::*;
+
+    #[test]
+    fn uniq() {
+         let vals = [
+             Z,
+             Y,
+             X,
+             W,
+             V,
+             U,
+             T,
+             S,
+             R,
+             Q,
+             P,
+             O,
+             N,
+             ZERO,
+             A,
+             B,
+             C,
+             D,
+             E,
+             F,
+             G,
+             H,
+             I,
+             J,
+             K,
+             L,
+             M,
+         ];
+
+         vals.iter()
+             .combinations(2)
+             .for_each(|vec| assert_ne!(vec[0], vec[1]));
+    }
+}

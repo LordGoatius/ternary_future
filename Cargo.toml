@@ -1,3 +1,6 @@
 [workspace]
 resolver = "3"
 members = [ "ternary", "memdevice" , "septivigntimal", "JTC_1701"]
+
+[workspace.dependencies]
+itertools = "0.14.0"

@@ -9,3 +9,4 @@ path = "lib.rs"
 
 [dependencies]
 balanced_ternary = { path = "../ternary" }
+itertools = { workspace = true }
