@@ -5,6 +5,10 @@ version = 4
 [[package]]
 name = "JTC_1701"
 version = "0.1.0"
+dependencies = [
+ "balanced_ternary",
+ "septivigntimal",
+]
 
 [[package]]
 name = "balanced_ternary"

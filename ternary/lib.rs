@@ -13,6 +13,8 @@
 
 #![cfg_attr(test, feature(test))]
 
+#![warn(clippy::missing_const_for_fn)]
+
 use core::cmp::Ordering;
 
 mod helper;
@@ -101,7 +103,7 @@ where
         pos.cmp(&neg)
     }
 
-    pub fn sign(self) -> Trit {
+    pub const fn sign(self) -> Trit {
         match self.sign_innner() {
             Ordering::Less => -Trit::ONE,
             Ordering::Equal => Trit::ZERO,
@@ -126,6 +128,26 @@ where
             char = bytes[i]
         }
         val
+    }
+
+    #[inline]
+    pub const fn slice<const S2: usize>(self, index: u32) -> Ternary<S2>
+    where
+        [(); S2 + (usize::MAX - 32)]:,
+    {
+        let Ternary { pos, neg } = self;
+        let mask = (1 << S2) - 1;
+        let pos = (pos >> index) & mask;
+        let neg = (neg >> index) & mask;
+        Ternary { pos, neg }
+    }
+
+    pub const fn extend<const S2: usize>(self) -> Ternary<S2>
+    where
+        [(); S2 + (usize::MAX - 32)]:,
+    {
+        let Ternary { pos, neg } = self;
+        Ternary { pos, neg }
     }
 }
 

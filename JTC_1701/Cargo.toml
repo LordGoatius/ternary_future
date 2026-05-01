@@ -8,3 +8,5 @@ name = "JTC_1701"
 path = "lib.rs"
 
 [dependencies]
+balanced_ternary = { path = "../ternary" }
+septivigntimal = { path = "../septivigntimal" }
