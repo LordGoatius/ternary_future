@@ -11,6 +11,7 @@ pub type Fn2 = Ternary<2>;
 pub type Imm18 = Ternary<18>;
 pub type Imm12 = Ternary<12>;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JTC_1701 {
     // Reg Type: rd, rs1, rs2
     ADD   (Reg, Reg, Reg),
@@ -21,7 +22,7 @@ pub enum JTC_1701 {
     SHR   (Reg, Reg, Reg),
     SHL   (Reg, Reg, Reg),
     CMP   (Reg, Reg, Reg),
-    // Imm Type: rd, rs1, imm18
+    // Imm Type: rd, rs1, imm12
     ADDI  (Reg, Reg, Imm12),
     SUBI  (Reg, Reg, Imm12),
     ANDI  (Reg, Reg, Imm12),
@@ -37,7 +38,7 @@ pub enum JTC_1701 {
     BNE   (Reg, Reg, Imm12),
     BLEQ  (Reg, Reg, Imm12),
     BGEQ  (Reg, Reg, Imm12),
-    // Upper: rd, imm12
+    // Upper: rd, imm18
     LUI   (Reg, Imm18),
     AUIPC (Reg, Imm18),
     // Loads: rd, rs1, imm12
@@ -93,6 +94,11 @@ pub mod funct_consts {
     pub const FN2_AUIPC: Fn2 =  Fn2::from_str("01");
 }
 
+// TODO: Check reserved/zero portions (func4/5) and return res/ill instr trap
+//
+// TODO(2): This is the only non-const function of the whole system right now.
+// We need to be able to call enum constructors which are coerced into function
+// pointers in a const context.
 #[rustfmt::skip]
 pub(crate) fn decode(instr: Word) -> JTC_1701 {
     use funct_consts::*;
@@ -116,11 +122,34 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
                 FN2_SHR => JTC_1701::SHR,
                 FN2_SHL => JTC_1701::SHL,
                 FN2_CMP => JTC_1701::CMP,
-                _ => todo!("Illegal Instr (TODO)")
+                _ => panic!("Illegal Instr (TODO)")
             })(
                 rd,
                 rs1,
                 rs2
+            )
+        },
+        IMM_OP => {
+            let op = IInstr(instr);
+            let rd = op.get_rd().unwrap();
+            let rs1 = op.get_rs1().unwrap();
+            let imm12 = op.get_imm12().unwrap();
+            let fn2 = op.get_fn2().unwrap();
+
+            (match fn2 {
+                FN2_ADD => JTC_1701::ADDI,
+                FN2_SUB => JTC_1701::SUBI,
+                FN2_AND => JTC_1701::ANDI,
+                FN2_OR  => JTC_1701::ORI,
+                FN2_XOR => JTC_1701::XORI,
+                FN2_SHR => JTC_1701::SHRI,
+                FN2_SHL => JTC_1701::SHLI,
+                FN2_CMP => JTC_1701::CMPI,
+                _ => panic!("Illegal Instr (TODO)")
+            })(
+                rd,
+                rs1,
+                imm12,
             )
         },
         LOAD_OP => {
@@ -133,7 +162,7 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             (match fn2 {
                 FN2_LT => JTC_1701::LT,
                 FN2_LW => JTC_1701::LW,
-                _ => todo!("Illegal Instr (TODO)")
+                _ => panic!("Illegal Instr (TODO)")
             })(
                 rd,
                 rs1,
@@ -156,47 +185,26 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
                 FN2_BNE  => JTC_1701::BNE,
                 FN2_BLEQ => JTC_1701::BLEQ,
                 FN2_BGEQ => JTC_1701::BGEQ,
-                _ => todo!("Illegal Instr (TODO)")
+                _ => panic!("Illegal Instr (TODO)")
             })(
                 rs1,
                 rs2,
                 imm12
             )
         },
-        IMM_OP => {
-            let op = IInstr(instr);
-            let rd = op.get_rd().unwrap();
-            let rs1 = op.get_rs1().unwrap();
-            let imm12 = op.get_imm12().unwrap();
-            let fn2 = op.get_fn2().unwrap();
-
-            (match fn2 {
-                FN2_ADD => JTC_1701::ADDI,
-                FN2_SUB => JTC_1701::SUBI,
-                FN2_AND => JTC_1701::ANDI,
-                FN2_OR  => JTC_1701::ORI,
-                FN2_XOR => JTC_1701::XORI,
-                FN2_SHR => JTC_1701::SHRI,
-                FN2_SHL => JTC_1701::SHLI,
-                FN2_CMP => JTC_1701::CMPI,
-                _ => todo!("Illegal Instr (TODO)")
-            })(
-                rd,
-                rs1,
-                imm12,
-            )
-        },
         STORE_OP => {
             let op = SInstr(instr);
             let rs1 = op.get_rs1().unwrap();
             let rs2 = op.get_rs2().unwrap();
-            let imm12 = op.get_imm12().unwrap();
+            let imm9 = op.get_imm9().unwrap();
+            let imm3 = op.get_imm3().unwrap();
             let fn2 = op.get_fn2().unwrap();
+            let imm12 = concat::<9, 3, 12>(imm9, imm3);
 
             (match fn2 {
                 FN2_ST => JTC_1701::ST,
                 FN2_SW => JTC_1701::SW,
-                _ => todo!("Illegal Instr (TODO)")
+                _ => panic!("Illegal Instr (TODO)")
             })(
                 rs1,
                 rs2,
@@ -213,7 +221,7 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             (match fn2 {
                 FN2_JAL  => JTC_1701::JAL,
                 FN2_JALR => JTC_1701::JALR,
-                _ => todo!("Illegal Instr (TODO)")
+                _ => panic!("Illegal Instr (TODO)")
             })(
                 rd,
                 rs1,
@@ -229,7 +237,7 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             (match fn2 {
                 FN2_LUI   => JTC_1701::LUI,
                 FN2_AUIPC => JTC_1701::AUIPC,
-                _ => todo!("Illegal Instr (TODO)")
+                _ => panic!("Illegal Instr (TODO)")
             })(
                 rd,
                 imm18,

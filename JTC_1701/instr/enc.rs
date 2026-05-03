@@ -1,17 +1,19 @@
-use crate::instr::dec::{Fn2, Imm12, Imm18, JTC_1701, Reg};
+use crate::instr::dec::{ARITH_OP, BRANCH_OP, Fn2, IMM_OP, Imm12, Imm18, JTC_1701, JUMP_OP, LOAD_OP, Op, Reg, STORE_OP, UPPER_OP};
 
 use super::*;
 
-fn create_rinstr(rd: Reg, rs1: Reg, rs2: Reg, fn2: Fn2) -> Word {
+const fn create_rinstr(rd: Reg, rs1: Reg, rs2: Reg, fn2: Fn2, op: Op) -> Word {
     let word = Word::ZERO;
+    let word = word.set(op, OP_IND);
     let word = word.set(rd, RD_IND);
     let word = word.set(rs1, RS1_IND);
     let word = word.set(rs2, RS2_IND);
     word.set(fn2, FN2_IND)
 }
 
-fn create_sinstr(rs1: Reg, rs2: Reg, imm12: Imm12, fn2: Fn2) -> Word {
+const fn create_sinstr(rs1: Reg, rs2: Reg, imm12: Imm12, fn2: Fn2, op: Op) -> Word {
     let word = Word::ZERO;
+    let word = word.set(op, OP_IND);
     let word = word.set(rs1, RS1_IND);
     let word = word.set(rs2, RS2_IND);
     let word = word.set(imm12.slice::<3>(0), IMM3_IND);
@@ -19,64 +21,66 @@ fn create_sinstr(rs1: Reg, rs2: Reg, imm12: Imm12, fn2: Fn2) -> Word {
     word.set(fn2, FN2_IND)
 }
 
-fn create_iinstr(rd: Reg, rs1: Reg, imm12: Imm12, fn2: Fn2) -> Word {
+const fn create_iinstr(rd: Reg, rs1: Reg, imm12: Imm12, fn2: Fn2, op: Op) -> Word {
     let word = Word::ZERO;
+    let word = word.set(op, OP_IND);
     let word = word.set(rd, RD_IND);
     let word = word.set(rs1, RS1_IND);
     let word = word.set(imm12, IMM12_IND);
     word.set(fn2, FN2_IND)
 }
 
-fn create_uinstr(rd: Reg, imm18: Imm18, fn2: Fn2) -> Word {
+const fn create_uinstr(rd: Reg, imm18: Imm18, fn2: Fn2, op: Op) -> Word {
     let word = Word::ZERO;
+    let word = word.set(op, OP_IND);
     let word = word.set(rd, RD_IND);
     let word = word.set(imm18, IMM18_IND);
     word.set(fn2, FN2_IND)
 }
 
-pub(crate) fn encode(instr: JTC_1701) -> Word {
+pub(crate) const fn encode(instr: JTC_1701) -> Word {
     use super::dec::funct_consts::*;
     use JTC_1701::*;
     // This should be able to be optimized well.
     // If not, I have some ideas.
     match instr {
         // Arith
-        ADD(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_ADD),
-        SUB(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_SUB),
-        AND(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_AND),
-        OR (rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_OR ),
-        XOR(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_XOR),
-        SHR(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_SHR),
-        SHL(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_SHL),
-        CMP(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_CMP),
+        ADD(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_ADD, ARITH_OP),
+        SUB(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_SUB, ARITH_OP),
+        AND(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_AND, ARITH_OP),
+        OR (rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_OR , ARITH_OP),
+        XOR(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_XOR, ARITH_OP),
+        SHR(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_SHR, ARITH_OP),
+        SHL(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_SHL, ARITH_OP),
+        CMP(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_CMP, ARITH_OP),
         // Arith Imm
-        ADDI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_ADD),
-        SUBI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_SUB),
-        ANDI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_AND),
-        ORI (rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_OR ),
-        XORI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_XOR),
-        SHRI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_SHR),
-        SHLI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_SHL),
-        CMPI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_CMP),
+        ADDI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_ADD, IMM_OP),
+        SUBI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_SUB, IMM_OP),
+        ANDI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_AND, IMM_OP),
+        ORI (rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_OR , IMM_OP),
+        XORI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_XOR, IMM_OP),
+        SHRI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_SHR, IMM_OP),
+        SHLI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_SHL, IMM_OP),
+        CMPI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_CMP, IMM_OP),
         // Loads
-        LT(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_LT),
-        LW(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_LW),
+        LT(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_LT, LOAD_OP),
+        LW(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_LW, LOAD_OP),
         // Stores
-        ST(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_ST),
-        SW(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_SW),
+        ST(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_ST, STORE_OP),
+        SW(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_SW, STORE_OP),
         // Jumps
-        JAL (rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_JAL),
-        JALR(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_JALR),
+        JAL (rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_JAL , JUMP_OP),
+        JALR(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_JALR, JUMP_OP),
         // Branches
-        BEQ (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BEQ),
-        BLT (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BLT),
-        BGT (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BGT),
-        BNE (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BNE),
-        BLEQ(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BLEQ),
-        BGEQ(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BGEQ),
+        BEQ (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BEQ , BRANCH_OP),
+        BLT (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BLT , BRANCH_OP),
+        BGT (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BGT , BRANCH_OP),
+        BNE (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BNE , BRANCH_OP),
+        BLEQ(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BLEQ, BRANCH_OP),
+        BGEQ(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BGEQ, BRANCH_OP),
         // Loading Uppers
-        LUI  (rd, imm18) => create_uinstr(rd, imm18, FN2_LUI),
-        AUIPC(rd, imm18) => create_uinstr(rd, imm18, FN2_AUIPC),
+        LUI  (rd, imm18) => create_uinstr(rd, imm18, FN2_LUI  , UPPER_OP),
+        AUIPC(rd, imm18) => create_uinstr(rd, imm18, FN2_AUIPC, UPPER_OP),
     }
 }
 
