@@ -11,3 +11,4 @@ path = "lib.rs"
 balanced_ternary = { path = "../ternary" }
 itertools = { workspace = true }
 septivigntimal = { path = "../septivigntimal" }
+memdevice = { path = "../memdevice" }

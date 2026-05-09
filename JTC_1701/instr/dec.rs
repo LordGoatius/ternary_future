@@ -1,3 +1,5 @@
+use std::hint::unreachable_unchecked;
+
 use ternary::concat;
 
 use crate::instr::enc::Encoding;
@@ -50,6 +52,15 @@ pub enum JTC_1701 {
     // Jumps: rd, rs1, imm12
     JAL   (Reg, Reg, Imm12),
     JALR  (Reg, Reg, Imm12),
+    // System (U)
+    ECALL (Reg, Imm18),
+    EBREAK(Reg, Imm18),
+    SRET  (Reg, Imm18),
+    WFI   (Reg, Imm18),
+    // System (S)
+    CSRW  (Reg, Reg, Imm12),
+    // System (I)
+    CSRR  (Reg, Reg, Imm12),
 }
 
 pub const ARITH_OP:  Op = Op::from_str("0T01");
@@ -59,6 +70,7 @@ pub const IMM_OP:    Op = Op::from_str("0011");
 pub const STORE_OP:  Op = Op::from_str("0T10");
 pub const JUMP_OP:   Op = Op::from_str("0110");
 pub const UPPER_OP:  Op = Op::from_str("0111");
+pub const SYSTEM_OP: Op = Op::from_str("0001");
 
 pub mod funct_consts {
     use septivigntimal::*;
@@ -92,6 +104,13 @@ pub mod funct_consts {
 
     pub const FN2_LUI:   Fn2 =  Fn2::from_str("00");
     pub const FN2_AUIPC: Fn2 =  Fn2::from_str("01");
+
+    pub const FN2_ECALL:  Fn2 = Fn2::from_str("00");
+    pub const FN2_EBREAK: Fn2 = Fn2::from_str("01");
+    pub const FN2_SRET:   Fn2 = Fn2::from_str("0T");
+    pub const FN2_CSRW:   Fn2 = Fn2::from_str("1T");
+    pub const FN2_CSRR:   Fn2 = Fn2::from_str("T1");
+    pub const FN2_WFI:    Fn2 = Fn2::from_str("T0");
 }
 
 // TODO: Check reserved/zero portions (func4/5) and return res/ill instr trap
@@ -242,6 +261,46 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
                 rd,
                 imm18,
             )
+        },
+        SYSTEM_OP => {
+            let uop = UInstr(instr);
+            let fn2 = uop.get_fn2().unwrap();
+            match fn2 {
+                val @ (FN2_ECALL |
+                FN2_EBREAK |
+                FN2_SRET |
+                FN2_WFI) => {
+                    let rd = uop.get_rd().unwrap();
+                    let imm = uop.get_imm18().unwrap();
+                    (match val {
+                        FN2_ECALL  => JTC_1701::ECALL,
+                        FN2_EBREAK => JTC_1701::EBREAK,
+                        FN2_SRET   => JTC_1701::SRET,
+                        FN2_WFI    => JTC_1701::WFI,
+                        _          => unsafe { unreachable_unchecked() },
+                    })(
+                        rd,
+                        imm
+                    )
+                },
+                FN2_CSRR => {
+                    let op = IInstr(instr);
+                    let rd = op.get_rd().unwrap();
+                    let rs1 = op.get_rs1().unwrap();
+                    let imm12 = op.get_imm12().unwrap();
+                    JTC_1701::CSRR(rd, rs1, imm12)
+                },
+                FN2_CSRW => {
+                    let op = SInstr(instr);
+                    let rs1 = op.get_rs1().unwrap();
+                    let rs2 = op.get_rs2().unwrap();
+                    let imm9 = op.get_imm9().unwrap();
+                    let imm3 = op.get_imm3().unwrap();
+                    let imm12 = concat::<9, 3, 12>(imm9, imm3);
+                    JTC_1701::CSRW(rs1, rs2, imm12)
+                },
+                _ => panic!("Illegal Instruction")
+            }
         },
         _ => panic!("Illegal Instr"),
     }

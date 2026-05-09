@@ -5,3 +5,4 @@
 extern crate balanced_ternary as ternary;
 
 mod instr;
+mod machine;

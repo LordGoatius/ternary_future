@@ -1,4 +1,4 @@
-use crate::instr::dec::{ARITH_OP, BRANCH_OP, Fn2, IMM_OP, Imm12, Imm18, JTC_1701, JUMP_OP, LOAD_OP, Op, Reg, STORE_OP, UPPER_OP};
+use crate::instr::dec::{ARITH_OP, BRANCH_OP, Fn2, IMM_OP, Imm12, Imm18, JTC_1701, JUMP_OP, LOAD_OP, Op, Reg, STORE_OP, SYSTEM_OP, UPPER_OP};
 
 use super::*;
 
@@ -79,8 +79,17 @@ pub(crate) const fn encode(instr: JTC_1701) -> Word {
         BLEQ(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BLEQ, BRANCH_OP),
         BGEQ(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BGEQ, BRANCH_OP),
         // Loading Uppers
-        LUI  (rd, imm18) => create_uinstr(rd, imm18, FN2_LUI  , UPPER_OP),
-        AUIPC(rd, imm18) => create_uinstr(rd, imm18, FN2_AUIPC, UPPER_OP),
+        LUI   (rd, imm18) => create_uinstr(rd, imm18, FN2_LUI  , UPPER_OP),
+        AUIPC (rd, imm18) => create_uinstr(rd, imm18, FN2_AUIPC, UPPER_OP),
+        // System
+        ECALL (rd, imm18) => create_uinstr(rd, imm18, FN2_ECALL , SYSTEM_OP),
+        EBREAK(rd, imm18) => create_uinstr(rd, imm18, FN2_EBREAK, SYSTEM_OP),
+        SRET  (rd, imm18) => create_uinstr(rd, imm18, FN2_SRET  , SYSTEM_OP),
+        WFI   (rd, imm18) => create_uinstr(rd, imm18, FN2_WFI   , SYSTEM_OP),
+        // CSRR
+        CSRW  (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_CSRW, SYSTEM_OP),
+        // CSRW
+        CSRR  (rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_CSRR, SYSTEM_OP),
     }
 }
 

@@ -3,7 +3,7 @@ pub mod dec;
 
 use ternary::Ternary;
 
-pub type Word = Ternary<27>;
+pub type Word  = Ternary<27>;
 pub type Tryte = Ternary<6>;
 
 #[repr(transparent)]
@@ -68,6 +68,14 @@ pub mod tests {
             // Jumps: rd, rs1, imm12
             JAL   (A, B, imm12),
             JALR  (A, B, imm12),
+            ECALL (A, imm18),
+            EBREAK(A, imm18),
+            SRET  (A, imm18),
+            WFI   (A, imm18),
+            // System (S)
+            CSRW  (B, C, imm12),
+            // System (I)
+            CSRR  (C, D, imm12),
         ];
 
         for instr in instrs {

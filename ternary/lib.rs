@@ -1,3 +1,11 @@
+#![warn(clippy::pedantic)]
+// All USIZE to u32 casts are using the `SIZE` const,
+// which cannot be greater than 32.
+#![allow(
+    clippy::cast_possible_truncation,
+    clippy::cast_possible_wrap,
+    clippy::cast_sign_loss,
+)]
 #![expect(incomplete_features)]
 #![feature(
     generic_const_exprs,
@@ -69,6 +77,7 @@ where
     pub const ONE: Self = Ternary { pos:  0b1, neg:  0b0 };
     pub const TWO: Self = Ternary { pos: 0b10, neg: 0b01 };
 
+    #[must_use]
     pub const fn pow(self, val: u32) -> Self {
         let mut ret = Ternary::ONE;
         let mut i = 0;
@@ -79,6 +88,7 @@ where
         ret
     }
 
+    #[must_use]
     pub const fn get_trit(self, index: usize) -> Trit {
         let Ternary { pos, neg } = self;
         let pos = (pos >> index) & 1;
@@ -87,8 +97,8 @@ where
     }
 
     pub const fn set_trit(&mut self, trit: Trit, index: usize) {
-        assert!(trit.pos.leading_zeros() >= 31);
-        assert!(trit.neg.leading_zeros() >= 31);
+        debug_assert!(trit.pos.leading_zeros() >= 31);
+        debug_assert!(trit.neg.leading_zeros() >= 31);
         let Ternary { mut pos, mut neg } = *self;
         let mask = !(1 << index);
         pos &= mask;
@@ -98,11 +108,13 @@ where
         *self = Ternary { pos, neg }
     }
 
+    #[must_use]
     pub(crate) const fn sign_innner(self) -> Ordering {
         let Ternary { pos, neg } = self;
         pos.cmp(&neg)
     }
 
+    #[must_use]
     pub const fn sign(self) -> Trit {
         match self.sign_innner() {
             Ordering::Less => -Trit::ONE,
@@ -111,6 +123,10 @@ where
         }
     }
 
+    #[must_use]
+    /// # Panics
+    /// Panics when str contains characters other than
+    /// '0', '1', or 't'/'T'
     pub const fn from_str(str: &str) -> Self {
         let mut val = Ternary::ZERO;
         let bytes = str.as_bytes();
@@ -131,6 +147,7 @@ where
     }
 
     #[inline]
+    #[must_use]
     pub const fn slice<const S2: usize>(self, index: u32) -> Ternary<S2>
     where
         [(); S2 + (usize::MAX - 32)]:,
@@ -143,6 +160,7 @@ where
     }
 
     #[inline]
+    #[must_use]
     pub const fn extend<const S2: usize>(self) -> Ternary<S2>
     where
         [(); S2 + (usize::MAX - 32)]:,
@@ -153,6 +171,7 @@ where
 
     /// Set `S2` trits of `self` to `val`, starting at `index`
     #[inline]
+    #[must_use]
     pub const fn set<const S2: usize>(self, val: Ternary<S2>, index: u32) -> Self
     where
         [(); S2 + (usize::MAX - 32)]:,
@@ -173,7 +192,7 @@ where
     }
 }
 
-
+#[must_use]
 pub const fn concat<const S1: usize, const S2: usize, const S3: usize>(val1: Ternary<S1>, val2: Ternary<S2>) -> Ternary<{ S1 + S2 }>
 where
     [(); S1 + (usize::MAX - 32)]:,
