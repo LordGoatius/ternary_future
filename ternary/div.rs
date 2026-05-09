@@ -1,4 +1,6 @@
 use core::ops::{Div, DivAssign};
+use core::ops::Rem;
+use core::ops::RemAssign;
 
 use crate::Ternary;
 
@@ -144,6 +146,132 @@ where
 {
     fn div_assign(&mut self, rhs: &mut Ternary<SIZE>) {
         **self /= *rhs;
+    }
+}
+
+impl<const SIZE: usize> Rem<Ternary<SIZE>> for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<SIZE>;
+    fn rem(self, rhs: Ternary<SIZE>) -> Self::Output {
+        div(self, rhs).expect("Cannot divide by 0").1
+    }
+}
+
+impl<const SIZE: usize> Rem<Ternary<SIZE>> for &Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<SIZE>;
+    fn rem(self, rhs: Ternary<SIZE>) -> Self::Output {
+        div(*self, rhs).expect("Cannot divide by 0").1
+    }
+}
+
+impl<const SIZE: usize> Rem<Ternary<SIZE>> for &mut Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<SIZE>;
+    fn rem(self, rhs: Ternary<SIZE>) -> Self::Output {
+        div(*self, rhs).expect("Cannot divide by 0").1
+    }
+}
+
+impl<const SIZE: usize> Rem<&Ternary<SIZE>> for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<SIZE>;
+    fn rem(self, rhs: &Ternary<SIZE>) -> Self::Output {
+        div(self, *rhs).expect("Cannot divide by 0").1
+    }
+}
+
+impl<const SIZE: usize> Rem<&Ternary<SIZE>> for &Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<SIZE>;
+    fn rem(self, rhs: &Ternary<SIZE>) -> Self::Output {
+        div(*self, *rhs).expect("Cannot divide by 0").1
+    }
+}
+
+impl<const SIZE: usize> Rem<&Ternary<SIZE>> for &mut Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<SIZE>;
+    fn rem(self, rhs: &Ternary<SIZE>) -> Self::Output {
+        div(*self, *rhs).expect("Cannot divide by 0").1
+    }
+}
+
+impl<const SIZE: usize> Rem<&mut Ternary<SIZE>> for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<SIZE>;
+    fn rem(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
+        div(self, *rhs).expect("Cannot divide by 0").1
+    }
+}
+
+impl<const SIZE: usize> Rem<&mut Ternary<SIZE>> for &Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<SIZE>;
+    fn rem(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
+        div(*self, *rhs).expect("Cannot divide by 0").1
+    }
+}
+
+impl<const SIZE: usize> Rem<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    type Output = Ternary<SIZE>;
+    fn rem(self, rhs: &mut Ternary<SIZE>) -> Self::Output {
+        div(*self, *rhs).expect("Cannot divide by 0").1
+    }
+}
+
+impl<const SIZE: usize> RemAssign<Ternary<SIZE>> for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    fn rem_assign(&mut self, rhs: Ternary<SIZE>) {
+        *self = *self % rhs;
+    }
+}
+
+impl<const SIZE: usize> RemAssign<&Ternary<SIZE>> for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    fn rem_assign(&mut self, rhs: &Ternary<SIZE>) {
+        *self %= *rhs;
+    }
+}
+
+impl<const SIZE: usize> RemAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    fn rem_assign(&mut self, rhs: &mut Ternary<SIZE>) {
+        *self %= *rhs;
+    }
+}
+
+impl<const SIZE: usize> RemAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+{
+    fn rem_assign(&mut self, rhs: &mut Ternary<SIZE>) {
+        **self %= *rhs;
     }
 }
 

@@ -7,6 +7,10 @@ edition = "2024"
 name = "JTC_1701"
 path = "lib.rs"
 
+[features]
+default = ["ext_mul"]
+ext_mul = []
+
 [dependencies]
 balanced_ternary = { path = "../ternary" }
 itertools = { workspace = true }

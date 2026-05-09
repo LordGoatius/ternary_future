@@ -3,6 +3,7 @@
     generic_const_exprs,
     const_trait_impl,
     const_ops,
+    explicit_tail_calls,
 )]
 #![allow(non_snake_case)]
 

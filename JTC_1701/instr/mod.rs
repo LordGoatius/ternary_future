@@ -40,6 +40,12 @@ pub mod tests {
             SHR   (A, B, C),
             SHL   (A, B, C),
             CMP   (A, B, C),
+            #[cfg(feature = "ext_mul")]
+            MUL   (A, B, C),
+            #[cfg(feature = "ext_mul")]
+            DIV   (A, B, C),
+            #[cfg(feature = "ext_mul")]
+            REM   (A, B, C),
             // Imm Type: rd, rs1, imm12
             ADDI  (A, B, imm12),
             SUBI  (A, B, imm12),
@@ -49,6 +55,12 @@ pub mod tests {
             SHRI  (A, B, imm12),
             SHLI  (A, B, imm12),
             CMPI  (A, B, imm12),
+            #[cfg(feature = "ext_mul")]
+            MULI  (A, B, imm12),
+            #[cfg(feature = "ext_mul")]
+            DIVI  (A, B, imm12),
+            #[cfg(feature = "ext_mul")]
+            REMI  (A, B, imm12),
             // Branch Type: rs1, rs2, imm12
             BEQ   (A, B, imm12),
             BLT   (A, B, imm12),

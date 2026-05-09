@@ -64,6 +64,28 @@ impl Machine {
         };
         pc + Word::THREE
     }
+    fn mul(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] * self.regs[rs2];
+        pc + Word::THREE
+    }
+    fn div(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExecErr> {
+        let denominator = self.regs[rs2];
+        if denominator == Word::ZERO {
+            Err(ExecErr::DivByZero)
+        } else {
+            self.regs[rd] = self.regs[rs1] / denominator;
+            Ok(pc + Word::THREE)
+        }
+    }
+    fn rem(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExecErr> {
+        let denominator = self.regs[rs2];
+        if denominator == Word::ZERO {
+            Err(ExecErr::DivByZero)
+        } else {
+            self.regs[rd] = self.regs[rs1] % denominator;
+            Ok(pc + Word::THREE)
+        }
+    }
     // Imm Type: rd, rs1, imm12
     // rd = rs1 OP imm12
     fn addi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
@@ -111,6 +133,28 @@ impl Machine {
             Ordering::Greater => Word::ONE,
         };
         pc + Word::THREE
+    }
+    fn muli(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] * imm12.extend();
+        pc + Word::THREE
+    }
+    fn divi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+        let denominator = imm12.extend();
+        if denominator == Word::ZERO {
+            Err(ExecErr::DivByZero)
+        } else {
+            self.regs[rd] = self.regs[rs1] / denominator;
+            Ok(pc + Word::THREE)
+        }
+    }
+    fn remi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+        let denominator = imm12.extend();
+        if denominator == Word::ZERO {
+            Err(ExecErr::DivByZero)
+        } else {
+            self.regs[rd] = self.regs[rs1] % denominator;
+            Ok(pc + Word::THREE)
+        }
     }
     // Branch Type: rs1, rs2, imm12
     fn beq (&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
@@ -202,14 +246,14 @@ impl Machine {
         pc + self.regs[rs1] + imm12.extend()
     }
     // System (U)
-    fn ecall(&mut self, rd: Reg, imm18: Imm18, pc: Word) { todo!() }
-    fn ebreak(&mut self, rd: Reg, imm18: Imm18, pc: Word) { todo!() }
-    fn sret(&mut self, rd: Reg, imm18: Imm18, pc: Word) { todo!() }
-    fn wfi(&mut self, rd: Reg, imm18: Imm18, pc: Word) { todo!() }
+    fn ecall(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
+    fn ebreak(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
+    fn sret(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
+    fn wfi(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
     // System (S)
-    fn csrw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) { todo!() }
+    fn csrw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word { todo!() }
     // System (I)
-    fn csrr(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) { todo!() }
+    fn csrr(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word { todo!() }
 
     //== HELPER FUNCTIONS ==//
     fn next(&self, pc: Word) -> JTC_1701 {

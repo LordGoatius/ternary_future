@@ -10,10 +10,14 @@ use super::*;
 pub type Reg = Ternary<3>;
 pub type Op = Ternary<4>;
 pub type Fn2 = Ternary<2>;
+pub type Val3 = Ternary<3>;
+pub type Funct4 = Ternary<4>;
 pub type Imm18 = Ternary<18>;
 pub type Imm12 = Ternary<12>;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[allow(nonstandard_style)]
+#[repr(u32)]
 pub enum JTC_1701 {
     // Reg Type: rd, rs1, rs2
     ADD   (Reg, Reg, Reg),
@@ -24,6 +28,12 @@ pub enum JTC_1701 {
     SHR   (Reg, Reg, Reg),
     SHL   (Reg, Reg, Reg),
     CMP   (Reg, Reg, Reg),
+    #[cfg(feature = "ext_mul")]
+    MUL   (Reg, Reg, Reg),
+    #[cfg(feature = "ext_mul")]
+    DIV   (Reg, Reg, Reg),
+    #[cfg(feature = "ext_mul")]
+    REM   (Reg, Reg, Reg),
     // Imm Type: rd, rs1, imm12
     ADDI  (Reg, Reg, Imm12),
     SUBI  (Reg, Reg, Imm12),
@@ -33,6 +43,12 @@ pub enum JTC_1701 {
     SHRI  (Reg, Reg, Imm12),
     SHLI  (Reg, Reg, Imm12),
     CMPI  (Reg, Reg, Imm12),
+    #[cfg(feature = "ext_mul")]
+    MULI  (Reg, Reg, Imm12),
+    #[cfg(feature = "ext_mul")]
+    DIVI  (Reg, Reg, Imm12),
+    #[cfg(feature = "ext_mul")]
+    REMI  (Reg, Reg, Imm12),
     // Branch Type: rs1, rs2, imm12
     BEQ   (Reg, Reg, Imm12),
     BLT   (Reg, Reg, Imm12),
@@ -63,6 +79,15 @@ pub enum JTC_1701 {
     CSRR  (Reg, Reg, Imm12),
 }
 
+impl JTC_1701 {
+    pub(crate) fn disc(&self) -> u32 {
+        // SAFETY: Because `Self` is marked `repr(u32)`, its layout is a `repr(C)` `union`
+        // between `repr(C)` structs, each of which has the `u8` discriminant as its first
+        // field, so we can read the discriminant without offsetting the pointer.
+        unsafe { *<*const _>::from(self).cast::<u32>() }
+    }
+}
+
 pub const ARITH_OP:  Op = Op::from_str("0T01");
 pub const LOAD_OP:   Op = Op::from_str("0T00");
 pub const BRANCH_OP: Op = Op::from_str("0T11");
@@ -75,7 +100,7 @@ pub const SYSTEM_OP: Op = Op::from_str("0001");
 pub mod funct_consts {
     use septivigntimal::*;
 
-    use crate::instr::dec::Fn2;
+    use crate::instr::dec::{Fn2, Funct4, Val3};
 
     pub const FN2_ADD: Fn2 = A.slice(0);
     pub const FN2_SUB: Fn2 = N.slice(0);
@@ -92,6 +117,9 @@ pub mod funct_consts {
     pub const FN2_BNE:  Fn2 = Fn2::from_str("1T");
     pub const FN2_BLEQ: Fn2 = Fn2::from_str("T0");
     pub const FN2_BGEQ: Fn2 = Fn2::from_str("10");
+
+    pub const VAL3_DEF: Val3 = ZERO;
+    pub const VAL3_MUL: Val3 = Z;
 
     pub const FN2_ST: Fn2 = Fn2::from_str("00");
     pub const FN2_SW: Fn2 = Fn2::from_str("01");
@@ -129,18 +157,25 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             let rs2 = op.get_rs2().unwrap();
             let fn2 = op.get_fn2().unwrap();
             // NOTE: funcs will be used later for extensions such as mul and div
+            let val3 = op.get_val3().unwrap();
             let _func4 = op.get_func4().unwrap();
             let _func5 = op.get_func5().unwrap();
 
-            (match fn2 {
-                FN2_ADD => JTC_1701::ADD,
-                FN2_SUB => JTC_1701::SUB,
-                FN2_AND => JTC_1701::AND,
-                FN2_OR  => JTC_1701::OR,
-                FN2_XOR => JTC_1701::XOR,
-                FN2_SHR => JTC_1701::SHR,
-                FN2_SHL => JTC_1701::SHL,
-                FN2_CMP => JTC_1701::CMP,
+            (match (fn2, val3) {
+                #[cfg(feature = "ext_mul")]
+                (FN2_ADD, VAL3_MUL) => JTC_1701::MUL,
+                #[cfg(feature = "ext_mul")]
+                (FN2_SUB, VAL3_MUL) => JTC_1701::DIV,
+                #[cfg(feature = "ext_mul")]
+                (FN2_SHL, VAL3_MUL) => JTC_1701::REM,
+                (FN2_ADD, VAL3_DEF) => JTC_1701::ADD,
+                (FN2_SUB, VAL3_DEF) => JTC_1701::SUB,
+                (FN2_AND, VAL3_DEF) => JTC_1701::AND,
+                (FN2_OR , VAL3_DEF) => JTC_1701::OR,
+                (FN2_XOR, VAL3_DEF) => JTC_1701::XOR,
+                (FN2_SHR, VAL3_DEF) => JTC_1701::SHR,
+                (FN2_SHL, VAL3_DEF) => JTC_1701::SHL,
+                (FN2_CMP, VAL3_DEF) => JTC_1701::CMP,
                 _ => panic!("Illegal Instr (TODO)")
             })(
                 rd,
@@ -154,16 +189,23 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             let rs1 = op.get_rs1().unwrap();
             let imm12 = op.get_imm12().unwrap();
             let fn2 = op.get_fn2().unwrap();
+            let val3 = op.get_val3().unwrap();
 
-            (match fn2 {
-                FN2_ADD => JTC_1701::ADDI,
-                FN2_SUB => JTC_1701::SUBI,
-                FN2_AND => JTC_1701::ANDI,
-                FN2_OR  => JTC_1701::ORI,
-                FN2_XOR => JTC_1701::XORI,
-                FN2_SHR => JTC_1701::SHRI,
-                FN2_SHL => JTC_1701::SHLI,
-                FN2_CMP => JTC_1701::CMPI,
+            (match (fn2, val3) {
+                #[cfg(feature = "ext_mul")]
+                (FN2_ADD, VAL3_MUL) => JTC_1701::MULI,
+                #[cfg(feature = "ext_mul")]
+                (FN2_SUB, VAL3_MUL) => JTC_1701::DIVI,
+                #[cfg(feature = "ext_mul")]
+                (FN2_SHL, VAL3_MUL) => JTC_1701::REMI,
+                (FN2_ADD, VAL3_DEF) => JTC_1701::ADDI,
+                (FN2_SUB, VAL3_DEF) => JTC_1701::SUBI,
+                (FN2_AND, VAL3_DEF) => JTC_1701::ANDI,
+                (FN2_OR , VAL3_DEF) => JTC_1701::ORI,
+                (FN2_XOR, VAL3_DEF) => JTC_1701::XORI,
+                (FN2_SHR, VAL3_DEF) => JTC_1701::SHRI,
+                (FN2_SHL, VAL3_DEF) => JTC_1701::SHLI,
+                (FN2_CMP, VAL3_DEF) => JTC_1701::CMPI,
                 _ => panic!("Illegal Instr (TODO)")
             })(
                 rd,

@@ -1,4 +1,4 @@
-use crate::instr::dec::{ARITH_OP, BRANCH_OP, Fn2, IMM_OP, Imm12, Imm18, JTC_1701, JUMP_OP, LOAD_OP, Op, Reg, STORE_OP, SYSTEM_OP, UPPER_OP};
+use crate::instr::dec::{ARITH_OP, BRANCH_OP, Fn2, IMM_OP, Imm12, Imm18, JTC_1701, JUMP_OP, LOAD_OP, Op, Reg, STORE_OP, SYSTEM_OP, UPPER_OP, Val3};
 
 use super::*;
 
@@ -8,6 +8,16 @@ const fn create_rinstr(rd: Reg, rs1: Reg, rs2: Reg, fn2: Fn2, op: Op) -> Word {
     let word = word.set(rd, RD_IND);
     let word = word.set(rs1, RS1_IND);
     let word = word.set(rs2, RS2_IND);
+    word.set(fn2, FN2_IND)
+}
+
+const fn create_rinstr_ext(rd: Reg, rs1: Reg, rs2: Reg, fn2: Fn2, val3: Val3, op: Op) -> Word {
+    let word = Word::ZERO;
+    let word = word.set(op, OP_IND);
+    let word = word.set(rd, RD_IND);
+    let word = word.set(rs1, RS1_IND);
+    let word = word.set(rs2, RS2_IND);
+    let word = word.set(val3, VAL3_IND);
     word.set(fn2, FN2_IND)
 }
 
@@ -27,6 +37,16 @@ const fn create_iinstr(rd: Reg, rs1: Reg, imm12: Imm12, fn2: Fn2, op: Op) -> Wor
     let word = word.set(rd, RD_IND);
     let word = word.set(rs1, RS1_IND);
     let word = word.set(imm12, IMM12_IND);
+    word.set(fn2, FN2_IND)
+}
+
+const fn create_iinstr_ext(rd: Reg, rs1: Reg, imm12: Imm12, fn2: Fn2, val3: Val3, op: Op) -> Word {
+    let word = Word::ZERO;
+    let word = word.set(op, OP_IND);
+    let word = word.set(rd, RD_IND);
+    let word = word.set(rs1, RS1_IND);
+    let word = word.set(imm12, IMM12_IND);
+    let word = word.set(val3, VAL3_IND);
     word.set(fn2, FN2_IND)
 }
 
@@ -53,6 +73,12 @@ pub(crate) const fn encode(instr: JTC_1701) -> Word {
         SHR(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_SHR, ARITH_OP),
         SHL(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_SHL, ARITH_OP),
         CMP(rd, rs1, rs2) => create_rinstr(rd, rs1, rs2, FN2_CMP, ARITH_OP),
+        #[cfg(feature = "ext_mul")]
+        MUL(rd, rs1, rs2) => create_rinstr_ext(rd, rs1, rs2, FN2_ADD, VAL3_MUL, ARITH_OP),
+        #[cfg(feature = "ext_mul")]
+        DIV(rd, rs1, rs2) => create_rinstr_ext(rd, rs1, rs2, FN2_SUB, VAL3_MUL, ARITH_OP),
+        #[cfg(feature = "ext_mul")]
+        REM(rd, rs1, rs2) => create_rinstr_ext(rd, rs1, rs2, FN2_SHL, VAL3_MUL, ARITH_OP),
         // Arith Imm
         ADDI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_ADD, IMM_OP),
         SUBI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_SUB, IMM_OP),
@@ -62,6 +88,12 @@ pub(crate) const fn encode(instr: JTC_1701) -> Word {
         SHRI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_SHR, IMM_OP),
         SHLI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_SHL, IMM_OP),
         CMPI(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_CMP, IMM_OP),
+        #[cfg(feature = "ext_mul")]
+        MULI(rd, rs1, imm12) => create_iinstr_ext(rd, rs1, imm12, FN2_ADD, VAL3_MUL, IMM_OP),
+        #[cfg(feature = "ext_mul")]
+        DIVI(rd, rs1, imm12) => create_iinstr_ext(rd, rs1, imm12, FN2_SUB, VAL3_MUL, IMM_OP),
+        #[cfg(feature = "ext_mul")]
+        REMI(rd, rs1, imm12) => create_iinstr_ext(rd, rs1, imm12, FN2_SHL, VAL3_MUL, IMM_OP),
         // Loads
         LT(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_LT, LOAD_OP),
         LW(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_LW, LOAD_OP),
