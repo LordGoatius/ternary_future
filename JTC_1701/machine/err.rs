@@ -5,4 +5,6 @@ pub enum ExceptionType {
     DivByZero,
     IllegalInstr,
     ECall,
+    EBreak,
+    SRet,
 }

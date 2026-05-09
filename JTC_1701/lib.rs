@@ -40,22 +40,21 @@ pub mod tests {
         // 11  bleq r4, r4, cont
         //   hlt:
         // 12   hlt
-        // TODO: Change to Offsets
-        const HLT: Imm12 = Imm12::from_str("110");
-        const LOOP: Imm18 = Imm18::from_str("11");
+        const HALT: Imm12 = Imm12::from_str("11"); // +12
+        const LOOP: Imm18 = Imm18::from_str("T0"); // -9
         let n: Imm12 = 6.try_into().unwrap();
         let instrs = [
-            encode(JTC_1701::ADDI(A, A, Imm12::ONE)),
-            encode(JTC_1701::ADDI(B, B, n)),
-            encode(JTC_1701::ADDI(C, C, Imm12::ONE)),
-            encode(JTC_1701::ADDI(D, D, Imm12::ZERO)),
-            // loop
-            encode(JTC_1701::BLEQ(B, A, HLT)),
-            encode(JTC_1701::MUL(C, C, B)),
-            encode(JTC_1701::SUB(B, B, A)),
-            encode(JTC_1701::JAL(Z, LOOP)),
-            // HLT
-            encode(JTC_1701::ECALL(A, Imm18::ZERO))
+            /* 0*/   encode(JTC_1701::ADDI(A, A, Imm12::ONE)),
+            /* 3*/   encode(JTC_1701::ADDI(B, B, n)),
+            /* 6*/   encode(JTC_1701::ADDI(C, C, Imm12::ONE)),
+            /* 9*/   encode(JTC_1701::ADDI(D, D, Imm12::ZERO)),
+                    // loop
+            /* 12 */ encode(JTC_1701::BLEQ(B, A, HALT)),
+            /* 15 */ encode(JTC_1701::MUL(C, C, B)),
+            /* 18 */ encode(JTC_1701::SUB(B, B, A)),
+            /* 21 */ encode(JTC_1701::JAL(Z, LOOP)),
+                    // HLT
+            /* 24 */ encode(JTC_1701::ECALL(A, Imm18::ZERO))
         ];
     }
 }

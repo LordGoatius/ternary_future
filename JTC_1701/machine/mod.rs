@@ -1,13 +1,17 @@
 use std::cmp::Ordering;
 
-use crate::{instr::{
-    Word, dec::{Imm12, Imm18, JTC_1701, Reg, decode}, enc::encode
-}, machine::{err::ExceptionType, memory::Memory, registers::Registers}};
+use crate::{
+    instr::{
+        dec::{decode, Imm12, Imm18, Reg, JTC_1701},
+        Word,
+    },
+    machine::{err::ExceptionType, memory::Memory, registers::Registers},
+};
 
 pub mod dispatch;
+pub mod err;
 pub mod memory;
 pub mod registers;
-pub mod err;
 
 #[derive(Default)]
 pub struct Machine {
@@ -58,8 +62,8 @@ impl Machine {
     }
     fn cmp(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Word {
         self.regs[rd] = match self.regs[rs1].cmp(&self.regs[rs2]) {
-            Ordering::Less    => -Word::ONE,
-            Ordering::Equal   => Word::ZERO,
+            Ordering::Less => -Word::ONE,
+            Ordering::Equal => Word::ZERO,
             Ordering::Greater => Word::ONE,
         };
         pc + Word::THREE
@@ -128,9 +132,9 @@ impl Machine {
     }
     fn cmpi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
         self.regs[rd] = match self.regs[rs1].cmp(&imm12.extend()) {
-            Ordering::Less    => -Word::ONE,
-            Ordering::Equal   =>  Word::ZERO,
-            Ordering::Greater =>  Word::ONE,
+            Ordering::Less => -Word::ONE,
+            Ordering::Equal => Word::ZERO,
+            Ordering::Greater => Word::ONE,
         };
         pc + Word::THREE
     }
@@ -157,28 +161,28 @@ impl Machine {
         }
     }
     // Branch Type: rs1, rs2, imm12
-    fn beq (&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+    fn beq(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
         if self.regs[rs1] == self.regs[rs2] {
             pc + imm12.extend()
         } else {
             pc + Word::THREE
         }
     }
-    fn blt (&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+    fn blt(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
         if self.regs[rs1] < self.regs[rs2] {
             pc + imm12.extend()
         } else {
             pc + Word::THREE
         }
     }
-    fn bgt (&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+    fn bgt(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
         if self.regs[rs1] > self.regs[rs2] {
             pc + imm12.extend()
         } else {
             pc + Word::THREE
         }
     }
-    fn bne (&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+    fn bne(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
         if self.regs[rs1] != self.regs[rs2] {
             pc + imm12.extend()
         } else {
@@ -211,16 +215,22 @@ impl Machine {
     // Loads: rd, rs1, imm12
     // rd = M[rs1 + imm]
     fn lt(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
-        self.memory.read_tryte(self.regs[rs1] + imm12.extend()).map(|val| {
-            self.regs[rd] = val.extend();
-            pc + Word::THREE
-        }).ok_or(ExceptionType::PageFault)
+        self.memory
+            .read_tryte(self.regs[rs1] + imm12.extend())
+            .map(|val| {
+                self.regs[rd] = val.extend();
+                pc + Word::THREE
+            })
+            .ok_or(ExceptionType::PageFault)
     }
     fn lw(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
-        self.memory.read_word(self.regs[rs1] + imm12.extend()).map(|val| {
-            self.regs[rd] = val;
-            pc + Word::THREE
-        }).ok_or(ExceptionType::PageFault)
+        self.memory
+            .read_word(self.regs[rs1] + imm12.extend())
+            .map(|val| {
+                self.regs[rd] = val;
+                pc + Word::THREE
+            })
+            .ok_or(ExceptionType::PageFault)
     }
     // Stores: rs1, rs2, imm12
     fn st(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
@@ -246,17 +256,33 @@ impl Machine {
         pc + self.regs[rs1] + imm12.extend()
     }
     // System (U)
-    fn ecall(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { return pc; todo!() }
-    fn ebreak(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
-    fn sret(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
-    fn wfi(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
+    fn ecall(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word {
+        return pc;
+        todo!()
+    }
+    fn ebreak(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word {
+        todo!()
+    }
+    fn sret(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word {
+        todo!()
+    }
+    fn wfi(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word {
+        todo!()
+    }
     // System (S)
-    fn csrw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word { todo!() }
+    fn csrw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+        todo!()
+    }
     // System (I)
-    fn csrr(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word { todo!() }
+    fn csrr(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
+        todo!()
+    }
 
     //== HELPER FUNCTIONS ==//
     fn next(&self, pc: Word) -> Result<JTC_1701, ExceptionType> {
-        self.memory.read_word(pc).ok_or(ExceptionType::PageFault).and_then(|val| decode(val))
+        self.memory
+            .read_word(pc)
+            .ok_or(ExceptionType::PageFault)
+            .and_then(|val| decode(val))
     }
 }
