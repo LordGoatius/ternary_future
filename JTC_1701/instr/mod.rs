@@ -66,7 +66,7 @@ pub mod tests {
             ST    (A, B, imm12),
             SW    (A, B, imm12),
             // Jumps: rd, rs1, imm12
-            JAL   (A, B, imm12),
+            JAL   (A, imm18),
             JALR  (A, B, imm12),
             ECALL (A, imm18),
             EBREAK(A, imm18),

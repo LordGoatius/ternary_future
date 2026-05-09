@@ -69,7 +69,7 @@ pub(crate) const fn encode(instr: JTC_1701) -> Word {
         ST(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_ST, STORE_OP),
         SW(rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_SW, STORE_OP),
         // Jumps
-        JAL (rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_JAL , JUMP_OP),
+        JAL (rd, imm18) => create_uinstr(rd, imm18, FN2_JAL , JUMP_OP),
         JALR(rd, rs1, imm12) => create_iinstr(rd, rs1, imm12, FN2_JALR, JUMP_OP),
         // Branches
         BEQ (rs1, rs2, imm12) => create_sinstr(rs1, rs2, imm12, FN2_BEQ , BRANCH_OP),

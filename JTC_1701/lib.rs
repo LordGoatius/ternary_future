@@ -1,5 +1,9 @@
 #![expect(incomplete_features)]
-#![feature(generic_const_exprs, const_trait_impl, const_ops)]
+#![feature(
+    generic_const_exprs,
+    const_trait_impl,
+    const_ops,
+)]
 #![allow(non_snake_case)]
 
 extern crate balanced_ternary as ternary;

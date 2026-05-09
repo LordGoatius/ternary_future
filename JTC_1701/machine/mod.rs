@@ -1,61 +1,218 @@
+use std::cmp::Ordering;
+
 use crate::{instr::{
-    Word, dec::{Imm12, Imm18, Reg}
-}, machine::{memory::Memory, registers::Registers}};
+    Word, dec::{Imm12, Imm18, JTC_1701, Reg}
+}, machine::{err::ExecErr, memory::Memory, registers::Registers}};
 
 pub mod dispatch;
 pub mod memory;
 pub mod registers;
+pub mod err;
 
 pub struct Machine {
     regs: Registers,
     memory: Memory,
+    pc: Word,
 }
 
 impl Machine {
     // Reg Type: rd, rs1, rs2
-    fn add(&mut self, rd: Reg, rs1: Reg, rs2: Reg) {}
-    fn sub(&mut self, rd: Reg, rs1: Reg, rs2: Reg) {}
-    fn and(&mut self, rd: Reg, rs1: Reg, rs2: Reg) {}
-    fn or(&mut self, rd: Reg, rs1: Reg, rs2: Reg) {}
-    fn xor(&mut self, rd: Reg, rs1: Reg, rs2: Reg) {}
-    fn shr(&mut self, rd: Reg, rs1: Reg, rs2: Reg) {}
-    fn shl(&mut self, rd: Reg, rs1: Reg, rs2: Reg) {}
-    fn cmp(&mut self, rd: Reg, rs1: Reg, rs2: Reg) {}
+    // rd = rs1 OP rs2
+    fn add(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] + self.regs[rs2];
+        pc + Word::THREE
+    }
+    fn sub(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] - self.regs[rs2];
+        pc + Word::THREE
+    }
+    fn and(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] & self.regs[rs2];
+        pc + Word::THREE
+    }
+    fn or(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] | self.regs[rs2];
+        pc + Word::THREE
+    }
+    fn xor(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] ^ self.regs[rs2];
+        pc + Word::THREE
+    }
+    fn shr(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExecErr> {
+        let imm: isize = self.regs[rs2].into();
+        if imm > 27 {
+            Err(ExecErr::ShiftOverflow)
+        } else {
+            self.regs[rd] = self.regs[rs1] >> Into::<isize>::into(self.regs[rs2]);
+            Ok(pc + Word::THREE)
+        }
+    }
+    fn shl(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExecErr> {
+        let imm: isize = self.regs[rs2].into();
+        if imm > 27 {
+            Err(ExecErr::ShiftOverflow)
+        } else {
+            self.regs[rd] = self.regs[rs1] << Into::<isize>::into(self.regs[rs2]);
+            Ok(pc + Word::THREE)
+        }
+    }
+    fn cmp(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Word {
+        self.regs[rd] = match self.regs[rs1].cmp(&self.regs[rs2]) {
+            Ordering::Less    => -Word::ONE,
+            Ordering::Equal   => Word::ZERO,
+            Ordering::Greater => Word::ONE,
+        };
+        pc + Word::THREE
+    }
     // Imm Type: rd, rs1, imm12
-    fn addi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
-    fn subi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
-    fn andi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
-    fn ori(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
-    fn xori(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
-    fn shri(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
-    fn shli(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
-    fn cmpi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
+    // rd = rs1 OP imm12
+    fn addi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] + imm12.extend();
+        pc + Word::THREE
+    }
+    fn subi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] - imm12.extend();
+        pc + Word::THREE
+    }
+    fn andi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] & imm12.extend();
+        pc + Word::THREE
+    }
+    fn ori(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] | imm12.extend();
+        pc + Word::THREE
+    }
+    fn xori(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
+        self.regs[rd] = self.regs[rs1] ^ imm12.extend();
+        pc + Word::THREE
+    }
+    fn shri(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+        let imm: isize = imm12.into();
+        if imm > 27 {
+            Err(ExecErr::ShiftOverflow)
+        } else {
+            self.regs[rd] = self.regs[rs1] >> imm;
+            Ok(pc + Word::THREE)
+        }
+    }
+    fn shli(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+        let imm: isize = imm12.into();
+        if imm > 27 {
+            Err(ExecErr::ShiftOverflow)
+        } else {
+            self.regs[rd] = self.regs[rs1] << imm;
+            Ok(pc + Word::THREE)
+        }
+    }
+    fn cmpi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
+        self.regs[rd] = match self.regs[rs1].cmp(&imm12.extend()) {
+            Ordering::Less    => -Word::ONE,
+            Ordering::Equal   => Word::ZERO,
+            Ordering::Greater => Word::ONE,
+        };
+        pc + Word::THREE
+    }
     // Branch Type: rs1, rs2, imm12
-    fn beq(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12) {}
-    fn blt(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12) {}
-    fn bgt(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12) {}
-    fn bne(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12) {}
-    fn bleq(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12) {}
-    fn bgeq(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12) {}
+    fn beq (&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+        if self.regs[rs1] == self.regs[rs2] {
+            pc + imm12.extend()
+        } else {
+            pc + Word::THREE
+        }
+    }
+    fn blt (&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+        if self.regs[rs1] < self.regs[rs2] {
+            pc + imm12.extend()
+        } else {
+            pc + Word::THREE
+        }
+    }
+    fn bgt (&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+        if self.regs[rs1] > self.regs[rs2] {
+            pc + imm12.extend()
+        } else {
+            pc + Word::THREE
+        }
+    }
+    fn bne (&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+        if self.regs[rs1] != self.regs[rs2] {
+            pc + imm12.extend()
+        } else {
+            pc + Word::THREE
+        }
+    }
+    fn bleq(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+        if self.regs[rs1] <= self.regs[rs2] {
+            pc + imm12.extend()
+        } else {
+            pc + Word::THREE
+        }
+    }
+    fn bgeq(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
+        if self.regs[rs1] >= self.regs[rs2] {
+            pc + imm12.extend()
+        } else {
+            pc + Word::THREE
+        }
+    }
     // Upper: rd, imm18
-    fn lui(&mut self, rd: Reg, imm18: Imm18) {}
-    fn auipc(&mut self, rd: Reg, imm18: Imm18) {}
+    fn lui(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word {
+        self.regs[rd] = imm18.extend() << 9;
+        pc + Word::THREE
+    }
+    fn auipc(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word {
+        self.regs[rd] = pc + (imm18.extend() << 9);
+        pc + Word::THREE
+    }
     // Loads: rd, rs1, imm12
-    fn lt(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
-    fn lw(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
+    // rd = M[rs1 + imm]
+    fn lt(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+        self.memory.read_tryte(self.regs[rs1] + imm12.extend()).map(|val| {
+            self.regs[rd] = val.extend();
+            pc + Word::THREE
+        }).ok_or(ExecErr::PageFault)
+    }
+    fn lw(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+        self.memory.read_word(self.regs[rs1] + imm12.extend()).map(|val| {
+            self.regs[rd] = val;
+            pc + Word::THREE
+        }).ok_or(ExecErr::PageFault)
+    }
     // Stores: rs1, rs2, imm12
-    fn st(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12) {}
-    fn sw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12) {}
+    fn st(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+        self.memory
+            .write_tryte(self.regs[rs1] + imm12.slice(0), self.regs[rs2].slice(0))
+            .map(|_| pc + Word::THREE)
+            .ok_or(ExecErr::PageFault)
+    }
+    fn sw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+        self.memory
+            .write_word(self.regs[rs1] + imm12.slice(0), self.regs[rs2])
+            .map(|_| pc + Word::THREE)
+            .ok_or(ExecErr::PageFault)
+    }
     // Jumps: rd, rs1, imm12
-    fn jal(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
-    fn jalr(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
+    // rd = PC + 3; pc += (rs1 + imm18)
+    fn jal(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word {
+        self.regs[rd] = pc + Word::THREE;
+        pc + imm18.extend()
+    }
+    fn jalr(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
+        self.regs[rd] = pc + Word::THREE;
+        pc + self.regs[rs1] + imm12.extend()
+    }
     // System (U)
-    fn ecall(&mut self, rd: Reg, imm18: Imm18) {}
-    fn ebreak(&mut self, rd: Reg, imm18: Imm18) {}
-    fn sret(&mut self, rd: Reg, imm18: Imm18) {}
-    fn wfi(&mut self, rd: Reg, imm18: Imm18) {}
+    fn ecall(&mut self, rd: Reg, imm18: Imm18, pc: Word) { todo!() }
+    fn ebreak(&mut self, rd: Reg, imm18: Imm18, pc: Word) { todo!() }
+    fn sret(&mut self, rd: Reg, imm18: Imm18, pc: Word) { todo!() }
+    fn wfi(&mut self, rd: Reg, imm18: Imm18, pc: Word) { todo!() }
     // System (S)
-    fn csrw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12) {}
+    fn csrw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) { todo!() }
     // System (I)
-    fn csrr(&mut self, rd: Reg, rs1: Reg, imm12: Imm12) {}
+    fn csrr(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) { todo!() }
+
+    //== HELPER FUNCTIONS ==//
+    fn next(&self, pc: Word) -> JTC_1701 {
+        todo!()
+    }
 }

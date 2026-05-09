@@ -76,6 +76,7 @@ where
 
     pub const ONE: Self = Ternary { pos:  0b1, neg:  0b0 };
     pub const TWO: Self = Ternary { pos: 0b10, neg: 0b01 };
+    pub const THREE: Self = Self::ONE << 1;
 
     #[must_use]
     pub const fn pow(self, val: u32) -> Self {
@@ -166,6 +167,8 @@ where
         [(); S2 + (usize::MAX - 32)]:,
     {
         let Ternary { pos, neg } = self;
+        let pos = ((1 << S2) - 1) & pos;
+        let neg = ((1 << S2) - 1) & neg;
         Ternary { pos, neg }
     }
 

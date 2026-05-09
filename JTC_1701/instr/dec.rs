@@ -50,7 +50,7 @@ pub enum JTC_1701 {
     ST    (Reg, Reg, Imm12),
     SW    (Reg, Reg, Imm12),
     // Jumps: rd, rs1, imm12
-    JAL   (Reg, Reg, Imm12),
+    JAL   (Reg, Imm18),
     JALR  (Reg, Reg, Imm12),
     // System (U)
     ECALL (Reg, Imm18),
@@ -232,20 +232,22 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
         },
         JUMP_OP => {
             let op = IInstr(instr);
-            let rd = op.get_rd().unwrap();
-            let rs1 = op.get_rs1().unwrap();
             let fn2 = op.get_fn2().unwrap();
-            let imm12 = op.get_imm12().unwrap();
+            let rd = op.get_rd().unwrap();
 
-            (match fn2 {
-                FN2_JAL  => JTC_1701::JAL,
-                FN2_JALR => JTC_1701::JALR,
+            match fn2 {
+                FN2_JAL  => {
+                    let op = UInstr(instr);
+                    let imm18 = op.get_imm18().unwrap();
+                    JTC_1701::JAL(rd, imm18)
+                },
+                FN2_JALR => {
+                    let rs1 = op.get_rs1().unwrap();
+                    let imm12 = op.get_imm12().unwrap();
+                    JTC_1701::JALR(rd, rs1, imm12)
+                },
                 _ => panic!("Illegal Instr (TODO)")
-            })(
-                rd,
-                rs1,
-                imm12,
-            )
+            }
         },
         UPPER_OP => {
             let op = UInstr(instr);

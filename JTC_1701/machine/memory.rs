@@ -76,7 +76,7 @@ pub mod tests {
     fn test_device_index() {
         let memspace = Box::leak(Box::new([
             MemEntry::new(Box::leak(Box::new(Dummy)), Word::MIN, Word::ONE << 3),
-            MemEntry::new(Box::leak(Box::new(Dummy)), Word::MIN + (Word::ONE << 4), Word::ONE << 3),
+            MemEntry::new(Box::leak(Box::new(Dummy)), Word::MIN + (Word::ONE << 4), 17isize.try_into().unwrap()),
             MemEntry::new(Box::leak(Box::new(Dummy)), Word::ZERO, Word::ONE << 3),
             MemEntry::new(Box::leak(Box::new(Dummy)), Word::ZERO + (Word::ONE << 4), Word::ONE << 3),
             MemEntry::new(Box::leak(Box::new(Dummy)), Word::MAX - (Word::ONE << 4), Word::ONE << 3),
