@@ -76,6 +76,14 @@ static TABLE: [DispatchFn; DISPATCH_TABLE_SIZE] = [
     trap,
 ];
 
+pub fn dispatch(machine: &mut Machine, pc: Word) -> Word {
+    // Change return type of dispatch fn to exception enum
+    let op = machine.next(pc);
+    let exec = TABLE[op.disc() as usize](machine, op, pc);
+
+    todo!()
+}
+
 fn add(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Word {
     let JTC_1701::ADD(rd, rs1, rs2) = instr else { panic!() };
     let pc = machine.add(rd, rs1, rs2, pc);
