@@ -1,10 +1,9 @@
-use memdevice::MemoryDevice;
-
 use crate::instr::Word;
+
+pub mod memory;
 
 pub struct Machine {
     regs: [Word; 27],
-    memspace: [&'static dyn MemoryDevice],
 }
 
 impl Machine {

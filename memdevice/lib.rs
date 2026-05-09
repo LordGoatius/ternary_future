@@ -1,7 +1,10 @@
 // I will pay for my hubris one day
 #![expect(incomplete_features)]
 #![allow(clippy::doc_lazy_continuation)]
-#![feature(generic_const_exprs, const_trait_impl)]
+#![feature(generic_const_exprs, const_trait_impl, const_cmp, const_ops)]
+
+use std::cmp::Ordering;
+use std::fmt::Debug;
 
 use balanced_ternary::Ternary;
 
@@ -9,13 +12,50 @@ type Word = Ternary<27>;
 type Tryte = Ternary<9>;
 
 pub type Addr = Word;
-pub type Memory = &'static [MemEntry];
 
-#[expect(unused)]
+unsafe impl Sync for MemEntry {}
+
+#[derive(Debug)]
 pub struct MemEntry {
-    dev: &'static dyn MemoryDevice,
-    base: Addr,
-    size: Word,
+    dev: &'static mut dyn MemoryDevice,
+    pub base: Addr,
+    pub size: Word,
+}
+
+impl MemEntry {
+    pub const fn new(dev: &'static mut dyn MemoryDevice, base: Addr, size: Addr) -> Self {
+        MemEntry { dev, base, size }
+    }
+
+    pub const fn valid_addr(&self, addr: Addr) -> Ordering {
+        match addr.cmp(&self.base) {
+            Ordering::Less    => Ordering::Greater,
+            Ordering::Equal   => Ordering::Equal,
+            Ordering::Greater => {
+                if addr < (self.base + self.size) {
+                    Ordering::Equal
+                } else {
+                    Ordering::Less
+                }
+            },
+        }
+    }
+
+    pub fn write_tryte(&mut self, offset: Addr, value: Tryte) {
+        self.dev.write_tryte(offset, value);
+    }
+
+    pub fn write_word(&mut self, offset: Addr, value: Word) {
+        self.dev.write_word(offset, value);
+    }
+
+    pub fn read_tryte(&mut self, offset: Addr) -> Tryte {
+        self.dev.read_tryte(offset)
+    }
+
+    pub fn read_word(&mut self, offset: Addr) -> Word {
+        self.dev.read_word(offset)
+    }
 }
 
 /// MEMORY_DEVICE_MODEL:
@@ -33,12 +73,12 @@ pub struct MemEntry {
 /// - DMA?
 /// - Unaligned accesses for devices?
 #[expect(unused)]
-pub trait MemoryDevice {
+pub trait MemoryDevice: Debug {
     fn write_tryte(&mut self, offset: Addr, value: Tryte);
     fn write_word(&mut self, offset: Addr, value: Word);
 
-    fn read_tryte(&mut self, offset: Addr, value: Tryte);
-    fn read_word(&mut self, offset: Addr, value: Word);
+    fn read_tryte(&mut self, offset: Addr) -> Tryte;
+    fn read_word(&mut self, offset: Addr) -> Word;
 
     /// Default impl that calls [`MemoryDevice::write_tryte`] in a loop
     fn write_trytes(&mut self, offset: Addr, value: &[Tryte]) {

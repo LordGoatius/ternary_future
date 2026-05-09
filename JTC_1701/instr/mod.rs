@@ -4,7 +4,7 @@ pub mod dec;
 use ternary::Ternary;
 
 pub type Word  = Ternary<27>;
-pub type Tryte = Ternary<6>;
+pub type Tryte = Ternary<9>;
 
 #[repr(transparent)]
 #[derive(Clone, Copy)]
