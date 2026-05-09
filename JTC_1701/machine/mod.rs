@@ -2,13 +2,14 @@ use std::cmp::Ordering;
 
 use crate::{instr::{
     Word, dec::{Imm12, Imm18, JTC_1701, Reg}
-}, machine::{err::ExecErr, memory::Memory, registers::Registers}};
+}, machine::{err::ExceptionType, memory::Memory, registers::Registers}};
 
 pub mod dispatch;
 pub mod memory;
 pub mod registers;
 pub mod err;
 
+#[derive(Default)]
 pub struct Machine {
     regs: Registers,
     memory: Memory,
@@ -38,19 +39,19 @@ impl Machine {
         self.regs[rd] = self.regs[rs1] ^ self.regs[rs2];
         pc + Word::THREE
     }
-    fn shr(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExecErr> {
+    fn shr(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExceptionType> {
         let imm: isize = self.regs[rs2].into();
         if imm > 27 {
-            Err(ExecErr::ShiftOverflow)
+            Err(ExceptionType::ShiftOverflow)
         } else {
             self.regs[rd] = self.regs[rs1] >> Into::<isize>::into(self.regs[rs2]);
             Ok(pc + Word::THREE)
         }
     }
-    fn shl(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExecErr> {
+    fn shl(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExceptionType> {
         let imm: isize = self.regs[rs2].into();
         if imm > 27 {
-            Err(ExecErr::ShiftOverflow)
+            Err(ExceptionType::ShiftOverflow)
         } else {
             self.regs[rd] = self.regs[rs1] << Into::<isize>::into(self.regs[rs2]);
             Ok(pc + Word::THREE)
@@ -68,19 +69,19 @@ impl Machine {
         self.regs[rd] = self.regs[rs1] * self.regs[rs2];
         pc + Word::THREE
     }
-    fn div(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExecErr> {
+    fn div(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExceptionType> {
         let denominator = self.regs[rs2];
         if denominator == Word::ZERO {
-            Err(ExecErr::DivByZero)
+            Err(ExceptionType::DivByZero)
         } else {
             self.regs[rd] = self.regs[rs1] / denominator;
             Ok(pc + Word::THREE)
         }
     }
-    fn rem(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExecErr> {
+    fn rem(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Result<Word, ExceptionType> {
         let denominator = self.regs[rs2];
         if denominator == Word::ZERO {
-            Err(ExecErr::DivByZero)
+            Err(ExceptionType::DivByZero)
         } else {
             self.regs[rd] = self.regs[rs1] % denominator;
             Ok(pc + Word::THREE)
@@ -108,19 +109,19 @@ impl Machine {
         self.regs[rd] = self.regs[rs1] ^ imm12.extend();
         pc + Word::THREE
     }
-    fn shri(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+    fn shri(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
         let imm: isize = imm12.into();
         if imm > 27 {
-            Err(ExecErr::ShiftOverflow)
+            Err(ExceptionType::ShiftOverflow)
         } else {
             self.regs[rd] = self.regs[rs1] >> imm;
             Ok(pc + Word::THREE)
         }
     }
-    fn shli(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+    fn shli(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
         let imm: isize = imm12.into();
         if imm > 27 {
-            Err(ExecErr::ShiftOverflow)
+            Err(ExceptionType::ShiftOverflow)
         } else {
             self.regs[rd] = self.regs[rs1] << imm;
             Ok(pc + Word::THREE)
@@ -138,19 +139,19 @@ impl Machine {
         self.regs[rd] = self.regs[rs1] * imm12.extend();
         pc + Word::THREE
     }
-    fn divi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+    fn divi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
         let denominator = imm12.extend();
         if denominator == Word::ZERO {
-            Err(ExecErr::DivByZero)
+            Err(ExceptionType::DivByZero)
         } else {
             self.regs[rd] = self.regs[rs1] / denominator;
             Ok(pc + Word::THREE)
         }
     }
-    fn remi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+    fn remi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
         let denominator = imm12.extend();
         if denominator == Word::ZERO {
-            Err(ExecErr::DivByZero)
+            Err(ExceptionType::DivByZero)
         } else {
             self.regs[rd] = self.regs[rs1] % denominator;
             Ok(pc + Word::THREE)
@@ -210,30 +211,30 @@ impl Machine {
     }
     // Loads: rd, rs1, imm12
     // rd = M[rs1 + imm]
-    fn lt(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+    fn lt(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
         self.memory.read_tryte(self.regs[rs1] + imm12.extend()).map(|val| {
             self.regs[rd] = val.extend();
             pc + Word::THREE
-        }).ok_or(ExecErr::PageFault)
+        }).ok_or(ExceptionType::PageFault)
     }
-    fn lw(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+    fn lw(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
         self.memory.read_word(self.regs[rs1] + imm12.extend()).map(|val| {
             self.regs[rd] = val;
             pc + Word::THREE
-        }).ok_or(ExecErr::PageFault)
+        }).ok_or(ExceptionType::PageFault)
     }
     // Stores: rs1, rs2, imm12
-    fn st(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+    fn st(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
         self.memory
             .write_tryte(self.regs[rs1] + imm12.slice(0), self.regs[rs2].slice(0))
             .map(|_| pc + Word::THREE)
-            .ok_or(ExecErr::PageFault)
+            .ok_or(ExceptionType::PageFault)
     }
-    fn sw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExecErr> {
+    fn sw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Result<Word, ExceptionType> {
         self.memory
             .write_word(self.regs[rs1] + imm12.slice(0), self.regs[rs2])
             .map(|_| pc + Word::THREE)
-            .ok_or(ExecErr::PageFault)
+            .ok_or(ExceptionType::PageFault)
     }
     // Jumps: rd, rs1, imm12
     // rd = PC + 3; pc += (rs1 + imm18)
@@ -246,7 +247,7 @@ impl Machine {
         pc + self.regs[rs1] + imm12.extend()
     }
     // System (U)
-    fn ecall(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
+    fn ecall(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { return pc; todo!() }
     fn ebreak(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
     fn sret(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }
     fn wfi(&mut self, rd: Reg, imm18: Imm18, pc: Word) -> Word { todo!() }

@@ -2,6 +2,7 @@ use memdevice::{Addr, MemEntry};
 
 use crate::instr::{Tryte, Word};
 
+#[derive(Default)]
 pub struct Memory {
     /// MemEntries must be sorted
     memspace: &'static mut [MemEntry],

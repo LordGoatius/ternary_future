@@ -321,6 +321,11 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
                         FN2_EBREAK => JTC_1701::EBREAK,
                         FN2_SRET   => JTC_1701::SRET,
                         FN2_WFI    => JTC_1701::WFI,
+                        // SAFETY: We alreadu matched on these 4 vals, but we're
+                        // using them again in a nested statement, it's impossible
+                        // it's anything other than these 4 values. Dead code analysis
+                        // would probably detect this though so I should probably just
+                        // use the safe macro.
                         _          => unsafe { unreachable_unchecked() },
                     })(
                         rd,

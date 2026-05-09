@@ -2,6 +2,7 @@ use std::ops::{Index, IndexMut};
 
 use crate::instr::{Word, dec::Reg};
 
+#[derive(Default)]
 pub struct Registers {
     regs: [Word; 27],
 }
