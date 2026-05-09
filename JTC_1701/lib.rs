@@ -2,7 +2,6 @@
 #![feature(
     generic_const_exprs,
     const_trait_impl,
-    const_ops,
     explicit_tail_calls,
 )]
 #![allow(non_snake_case)]
@@ -10,7 +9,7 @@
 extern crate balanced_ternary as ternary;
 
 mod instr;
-mod machine;
+pub mod machine;
 
 #[cfg(test)]
 pub mod tests {
@@ -46,17 +45,17 @@ pub mod tests {
         const LOOP: Imm18 = Imm18::from_str("11");
         let n: Imm12 = 6.try_into().unwrap();
         let instrs = [
-            JTC_1701::ADDI(A, A, Imm12::ONE),
-            JTC_1701::ADDI(B, B, n),
-            JTC_1701::ADDI(C, C, Imm12::ONE),
-            JTC_1701::ADDI(D, D, Imm12::ZERO),
+            encode(JTC_1701::ADDI(A, A, Imm12::ONE)),
+            encode(JTC_1701::ADDI(B, B, n)),
+            encode(JTC_1701::ADDI(C, C, Imm12::ONE)),
+            encode(JTC_1701::ADDI(D, D, Imm12::ZERO)),
             // loop
-            JTC_1701::BLEQ(B, A, HLT),
-            JTC_1701::MUL(C, C, B),
-            JTC_1701::SUB(B, B, A),
-            JTC_1701::JAL(Z, LOOP),
+            encode(JTC_1701::BLEQ(B, A, HLT)),
+            encode(JTC_1701::MUL(C, C, B)),
+            encode(JTC_1701::SUB(B, B, A)),
+            encode(JTC_1701::JAL(Z, LOOP)),
             // HLT
-            JTC_1701::ECALL(A, Imm18::ZERO)
+            encode(JTC_1701::ECALL(A, Imm18::ZERO))
         ];
     }
 }

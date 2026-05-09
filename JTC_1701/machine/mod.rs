@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use crate::{instr::{
-    Word, dec::{Imm12, Imm18, JTC_1701, Reg}
+    Word, dec::{Imm12, Imm18, JTC_1701, Reg, decode}, enc::encode
 }, machine::{err::ExceptionType, memory::Memory, registers::Registers}};
 
 pub mod dispatch;
@@ -13,7 +13,6 @@ pub mod err;
 pub struct Machine {
     regs: Registers,
     memory: Memory,
-    pc: Word,
 }
 
 impl Machine {
@@ -44,7 +43,7 @@ impl Machine {
         if imm > 27 {
             Err(ExceptionType::ShiftOverflow)
         } else {
-            self.regs[rd] = self.regs[rs1] >> Into::<isize>::into(self.regs[rs2]);
+            self.regs[rd] = self.regs[rs1] >> imm;
             Ok(pc + Word::THREE)
         }
     }
@@ -53,7 +52,7 @@ impl Machine {
         if imm > 27 {
             Err(ExceptionType::ShiftOverflow)
         } else {
-            self.regs[rd] = self.regs[rs1] << Into::<isize>::into(self.regs[rs2]);
+            self.regs[rd] = self.regs[rs1] << imm;
             Ok(pc + Word::THREE)
         }
     }
@@ -130,8 +129,8 @@ impl Machine {
     fn cmpi(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word {
         self.regs[rd] = match self.regs[rs1].cmp(&imm12.extend()) {
             Ordering::Less    => -Word::ONE,
-            Ordering::Equal   => Word::ZERO,
-            Ordering::Greater => Word::ONE,
+            Ordering::Equal   =>  Word::ZERO,
+            Ordering::Greater =>  Word::ONE,
         };
         pc + Word::THREE
     }
@@ -257,7 +256,7 @@ impl Machine {
     fn csrr(&mut self, rd: Reg, rs1: Reg, imm12: Imm12, pc: Word) -> Word { todo!() }
 
     //== HELPER FUNCTIONS ==//
-    fn next(&self, pc: Word) -> JTC_1701 {
-        todo!()
+    fn next(&self, pc: Word) -> Result<JTC_1701, ExceptionType> {
+        self.memory.read_word(pc).ok_or(ExceptionType::PageFault).and_then(|val| decode(val))
     }
 }

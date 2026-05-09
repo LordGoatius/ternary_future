@@ -6,7 +6,7 @@ use crate::{
 // TODO:
 // Macro "let else" decoding & exception match expression
 
-struct Exception(Word, ExceptionType);
+pub struct Exception(Word, ExceptionType);
 
 type DispatchFn = fn(&mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception>;
 
@@ -76,7 +76,9 @@ static TABLE: [DispatchFn; DISPATCH_TABLE_SIZE] = [
 
 pub fn dispatch(machine: &mut Machine, pc: Word) -> Word {
     // Change return type of dispatch fn to exception enum
-    let op = machine.next(pc);
+    let op = machine
+        .next(pc)
+        .expect("Cannot Start Dispatch: Illegal Start");
     let exec = TABLE[op.disc() as usize](machine, op, pc);
     if let Err(Exception(pc, ExceptionType::ECall)) = exec {
         return pc;
@@ -90,7 +92,7 @@ fn add(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.add(rd, rs1, rs2, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn sub(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -98,7 +100,7 @@ fn sub(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.sub(rd, rs1, rs2, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn and(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -106,7 +108,7 @@ fn and(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.and(rd, rs1, rs2, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn or(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -114,7 +116,7 @@ fn or(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exceptio
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.or(rd, rs1, rs2, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn xor(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -122,7 +124,7 @@ fn xor(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.xor(rd, rs1, rs2, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn shr(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -132,7 +134,7 @@ fn shr(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
     let pc_res = machine.shr(rd, rs1, rs2, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::ShiftOverflow) => {
@@ -148,7 +150,7 @@ fn shl(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
     let pc_res = machine.shl(rd, rs1, rs2, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::ShiftOverflow) => {
@@ -162,7 +164,7 @@ fn cmp(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.cmp(rd, rs1, rs2, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 #[cfg(feature = "ext_mul")]
@@ -171,7 +173,7 @@ fn mul(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.mul(rd, rs1, rs2, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 #[cfg(feature = "ext_mul")]
@@ -182,7 +184,7 @@ fn div(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
     let pc_res = machine.div(rd, rs1, rs2, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::DivByZero) => {
@@ -199,7 +201,7 @@ fn rem(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
     let pc_res = machine.rem(rd, rs1, rs2, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::DivByZero) => {
@@ -214,7 +216,7 @@ fn addi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.addi(rd, rs1, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn subi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -222,7 +224,7 @@ fn subi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.subi(rd, rs1, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn andi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -230,7 +232,7 @@ fn andi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.andi(rd, rs1, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn ori(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -238,7 +240,7 @@ fn ori(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.ori(rd, rs1, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn xori(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -246,7 +248,7 @@ fn xori(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.xori(rd, rs1, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn shri(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -256,7 +258,7 @@ fn shri(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
     let pc_res = machine.shri(rd, rs1, imm12, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         // PC is not incrememented during TRAPS
@@ -273,7 +275,7 @@ fn shli(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
     let pc_res = machine.shli(rd, rs1, imm12, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         // PC is not incrememented during TRAPS
@@ -288,7 +290,7 @@ fn cmpi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.cmpi(rd, rs1, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 #[cfg(feature = "ext_mul")]
@@ -297,7 +299,7 @@ fn muli(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.muli(rd, rs1, rs2, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 #[cfg(feature = "ext_mul")]
@@ -308,7 +310,7 @@ fn divi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
     let pc_res = machine.divi(rd, rs1, rs2, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::DivByZero) => {
@@ -325,7 +327,7 @@ fn remi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
     let pc_res = machine.remi(rd, rs1, rs2, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::DivByZero) => {
@@ -340,7 +342,7 @@ fn beq(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.beq(rs1, rs2, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn blt(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -348,7 +350,7 @@ fn blt(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.blt(rs1, rs2, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn bgt(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -356,7 +358,7 @@ fn bgt(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.bgt(rs1, rs2, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn bne(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -364,7 +366,7 @@ fn bne(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.bne(rs1, rs2, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn bleq(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -372,7 +374,7 @@ fn bleq(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.bleq(rs1, rs2, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn bgeq(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -380,7 +382,7 @@ fn bgeq(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.bgeq(rs1, rs2, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn lui(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -388,7 +390,7 @@ fn lui(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.lui(rd, imm18, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn auipc(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -396,7 +398,7 @@ fn auipc(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excep
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.auipc(rd, imm18, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn lt(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -406,7 +408,7 @@ fn lt(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exceptio
     let pc_res = machine.lt(rd, rs1, imm12, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::PageFault) => {
@@ -422,7 +424,7 @@ fn lw(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exceptio
     let pc_res = machine.lw(rd, rs1, imm12, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::PageFault) => {
@@ -438,7 +440,7 @@ fn st(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exceptio
     let pc_res = machine.st(rs1, rs2, imm12, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::PageFault) => {
@@ -454,7 +456,7 @@ fn sw(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exceptio
     let pc_res = machine.sw(rs1, rs2, imm12, pc);
     match pc_res {
         Ok(pc) => {
-            let next = machine.next(pc);
+            let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
             become TABLE[next.disc() as usize](machine, next, pc)
         }
         Err(err @ ExceptionType::PageFault) => {
@@ -468,7 +470,7 @@ fn jal(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.jal(rd, imm18, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn jalr(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -476,7 +478,7 @@ fn jalr(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.jalr(rd, rs1, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 
@@ -492,7 +494,7 @@ fn ebreak(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exce
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.ebreak(rd, imm18, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn sret(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -500,7 +502,7 @@ fn sret(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.sret(rd, imm18, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn wfi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -508,7 +510,7 @@ fn wfi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.wfi(rd, imm18, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn csrw(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -516,7 +518,7 @@ fn csrw(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.csrw(rs1, rs2, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
 fn csrr(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
@@ -524,6 +526,6 @@ fn csrr(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Except
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.csrr(rd, rs1, imm12, pc);
-    let next = machine.next(pc);
+    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }

@@ -15,29 +15,33 @@ impl Memory {
             .ok()
     }
 
-    pub fn find_device(&mut self, addr: Addr) -> Option<&mut MemEntry> {
+    pub fn find_device_mut(&mut self, addr: Addr) -> Option<&mut MemEntry> {
         self.find_device_index(addr).map(|val| &mut self.memspace[val])
     }
 
+    pub fn find_device(&self, addr: Addr) -> Option<&MemEntry> {
+        self.find_device_index(addr).map(|val| &self.memspace[val])
+    }
+
     pub fn write_tryte(&mut self, addr: Addr, value: Tryte) -> Option<()> {
-        self.find_device(addr).map(|dev| {
+        self.find_device_mut(addr).map(|dev| {
             dev.write_tryte(addr - dev.base, value);
         })
     }
 
     pub fn write_word(&mut self, addr: Addr, value: Word) -> Option<()> {
-        self.find_device(addr).map(|dev| {
+        self.find_device_mut(addr).map(|dev| {
             dev.write_word(addr - dev.base, value);
         })
     }
 
-    pub fn read_tryte(&mut self, addr: Addr) -> Option<Tryte> {
+    pub fn read_tryte(&self, addr: Addr) -> Option<Tryte> {
         self.find_device(addr).map(|dev| {
             dev.read_tryte(addr - dev.base)
         })
     }
 
-    pub fn read_word(&mut self, addr: Addr) -> Option<Word> {
+    pub fn read_word(&self, addr: Addr) -> Option<Word> {
         self.find_device(addr).map(|dev| {
             dev.read_word(addr - dev.base)
         })

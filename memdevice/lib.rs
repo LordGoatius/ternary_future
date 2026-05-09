@@ -49,11 +49,11 @@ impl MemEntry {
         self.dev.write_word(offset, value);
     }
 
-    pub fn read_tryte(&mut self, offset: Addr) -> Tryte {
+    pub fn read_tryte(&self, offset: Addr) -> Tryte {
         self.dev.read_tryte(offset)
     }
 
-    pub fn read_word(&mut self, offset: Addr) -> Word {
+    pub fn read_word(&self, offset: Addr) -> Word {
         self.dev.read_word(offset)
     }
 }
@@ -77,8 +77,8 @@ pub trait MemoryDevice: Debug {
     fn write_tryte(&mut self, offset: Addr, value: Tryte);
     fn write_word(&mut self, offset: Addr, value: Word);
 
-    fn read_tryte(&mut self, offset: Addr) -> Tryte;
-    fn read_word(&mut self, offset: Addr) -> Word;
+    fn read_tryte(&self, offset: Addr) -> Tryte;
+    fn read_word(&self, offset: Addr) -> Word;
 
     /// Default impl that calls [`MemoryDevice::write_tryte`] in a loop
     fn write_trytes(&mut self, offset: Addr, value: &[Tryte]) {

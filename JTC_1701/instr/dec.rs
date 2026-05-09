@@ -2,7 +2,7 @@ use std::hint::unreachable_unchecked;
 
 use ternary::concat;
 
-use crate::instr::enc::Encoding;
+use crate::{instr::enc::Encoding, machine::err::ExceptionType};
 
 #[allow(non_camel_case_types)]
 use super::*;
@@ -147,7 +147,7 @@ pub mod funct_consts {
 // We need to be able to call enum constructors which are coerced into function
 // pointers in a const context.
 #[rustfmt::skip]
-pub(crate) fn decode(instr: Word) -> JTC_1701 {
+pub(crate) fn decode(instr: Word) -> Result<JTC_1701, ExceptionType> {
     use funct_consts::*;
     match instr.slice::<4>(0) {
         ARITH_OP => {
@@ -161,7 +161,7 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             let _func4 = op.get_func4().unwrap();
             let _func5 = op.get_func5().unwrap();
 
-            (match (fn2, val3) {
+            Ok((match (fn2, val3) {
                 #[cfg(feature = "ext_mul")]
                 (FN2_ADD, VAL3_MUL) => JTC_1701::MUL,
                 #[cfg(feature = "ext_mul")]
@@ -176,12 +176,12 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
                 (FN2_SHR, VAL3_DEF) => JTC_1701::SHR,
                 (FN2_SHL, VAL3_DEF) => JTC_1701::SHL,
                 (FN2_CMP, VAL3_DEF) => JTC_1701::CMP,
-                _ => panic!("Illegal Instr (TODO)")
+                _ => return Err(ExceptionType::IllegalInstr)
             })(
                 rd,
                 rs1,
                 rs2
-            )
+            ))
         },
         IMM_OP => {
             let op = IInstr(instr);
@@ -191,7 +191,7 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             let fn2 = op.get_fn2().unwrap();
             let val3 = op.get_val3().unwrap();
 
-            (match (fn2, val3) {
+            Ok((match (fn2, val3) {
                 #[cfg(feature = "ext_mul")]
                 (FN2_ADD, VAL3_MUL) => JTC_1701::MULI,
                 #[cfg(feature = "ext_mul")]
@@ -206,12 +206,12 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
                 (FN2_SHR, VAL3_DEF) => JTC_1701::SHRI,
                 (FN2_SHL, VAL3_DEF) => JTC_1701::SHLI,
                 (FN2_CMP, VAL3_DEF) => JTC_1701::CMPI,
-                _ => panic!("Illegal Instr (TODO)")
+                _ => return Err(ExceptionType::IllegalInstr)
             })(
                 rd,
                 rs1,
                 imm12,
-            )
+            ))
         },
         LOAD_OP => {
             let op = IInstr(instr);
@@ -220,15 +220,15 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             let imm12 = op.get_imm12().unwrap();
             let fn2 = op.get_fn2().unwrap();
 
-            (match fn2 {
+            Ok((match fn2 {
                 FN2_LT => JTC_1701::LT,
                 FN2_LW => JTC_1701::LW,
-                _ => panic!("Illegal Instr (TODO)")
+                _ => return Err(ExceptionType::IllegalInstr)
             })(
                 rd,
                 rs1,
                 imm12
-            )
+            ))
         },
         BRANCH_OP => {
             let op = SInstr(instr);
@@ -239,19 +239,19 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             let fn2 = op.get_fn2().unwrap();
             let imm12 = concat::<9, 3, 12>(imm9, imm3);
 
-            (match fn2 {
+            Ok((match fn2 {
                 FN2_BEQ  => JTC_1701::BEQ,
                 FN2_BLT  => JTC_1701::BLT,
                 FN2_BGT  => JTC_1701::BGT,
                 FN2_BNE  => JTC_1701::BNE,
                 FN2_BLEQ => JTC_1701::BLEQ,
                 FN2_BGEQ => JTC_1701::BGEQ,
-                _ => panic!("Illegal Instr (TODO)")
+                _ => return Err(ExceptionType::IllegalInstr)
             })(
                 rs1,
                 rs2,
                 imm12
-            )
+            ))
         },
         STORE_OP => {
             let op = SInstr(instr);
@@ -262,15 +262,15 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             let fn2 = op.get_fn2().unwrap();
             let imm12 = concat::<9, 3, 12>(imm9, imm3);
 
-            (match fn2 {
+            Ok((match fn2 {
                 FN2_ST => JTC_1701::ST,
                 FN2_SW => JTC_1701::SW,
-                _ => panic!("Illegal Instr (TODO)")
+                _ => return Err(ExceptionType::IllegalInstr)
             })(
                 rs1,
                 rs2,
                 imm12,
-            )
+            ))
         },
         JUMP_OP => {
             let op = IInstr(instr);
@@ -281,14 +281,14 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
                 FN2_JAL  => {
                     let op = UInstr(instr);
                     let imm18 = op.get_imm18().unwrap();
-                    JTC_1701::JAL(rd, imm18)
+                    Ok(JTC_1701::JAL(rd, imm18))
                 },
                 FN2_JALR => {
                     let rs1 = op.get_rs1().unwrap();
                     let imm12 = op.get_imm12().unwrap();
-                    JTC_1701::JALR(rd, rs1, imm12)
+                    Ok(JTC_1701::JALR(rd, rs1, imm12))
                 },
-                _ => panic!("Illegal Instr (TODO)")
+                _ => return Err(ExceptionType::IllegalInstr)
             }
         },
         UPPER_OP => {
@@ -297,14 +297,14 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
             let fn2 = op.get_fn2().unwrap();
             let imm18 = op.get_imm18().unwrap();
 
-            (match fn2 {
+            Ok((match fn2 {
                 FN2_LUI   => JTC_1701::LUI,
                 FN2_AUIPC => JTC_1701::AUIPC,
-                _ => panic!("Illegal Instr (TODO)")
+                _ => return Err(ExceptionType::IllegalInstr)
             })(
                 rd,
                 imm18,
-            )
+            ))
         },
         SYSTEM_OP => {
             let uop = UInstr(instr);
@@ -316,28 +316,24 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
                 FN2_WFI) => {
                     let rd = uop.get_rd().unwrap();
                     let imm = uop.get_imm18().unwrap();
-                    (match val {
+                    Ok((match val {
                         FN2_ECALL  => JTC_1701::ECALL,
                         FN2_EBREAK => JTC_1701::EBREAK,
                         FN2_SRET   => JTC_1701::SRET,
                         FN2_WFI    => JTC_1701::WFI,
-                        // SAFETY: We alreadu matched on these 4 vals, but we're
-                        // using them again in a nested statement, it's impossible
-                        // it's anything other than these 4 values. Dead code analysis
-                        // would probably detect this though so I should probably just
-                        // use the safe macro.
-                        _          => unsafe { unreachable_unchecked() },
+                        // Should be obvious during DCE
+                        _          => unreachable!(),
                     })(
                         rd,
                         imm
-                    )
+                    ))
                 },
                 FN2_CSRR => {
                     let op = IInstr(instr);
                     let rd = op.get_rd().unwrap();
                     let rs1 = op.get_rs1().unwrap();
                     let imm12 = op.get_imm12().unwrap();
-                    JTC_1701::CSRR(rd, rs1, imm12)
+                    Ok(JTC_1701::CSRR(rd, rs1, imm12))
                 },
                 FN2_CSRW => {
                     let op = SInstr(instr);
@@ -346,12 +342,12 @@ pub(crate) fn decode(instr: Word) -> JTC_1701 {
                     let imm9 = op.get_imm9().unwrap();
                     let imm3 = op.get_imm3().unwrap();
                     let imm12 = concat::<9, 3, 12>(imm9, imm3);
-                    JTC_1701::CSRW(rs1, rs2, imm12)
+                    Ok(JTC_1701::CSRW(rs1, rs2, imm12))
                 },
-                _ => panic!("Illegal Instruction")
+                _ => return Err(ExceptionType::IllegalInstr)
             }
         },
-        _ => panic!("Illegal Instr"),
+        _ => return Err(ExceptionType::IllegalInstr),
     }
 }
 
