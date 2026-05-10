@@ -15,11 +15,19 @@ pub mod registers;
 
 #[derive(Default)]
 pub struct Machine {
-    regs: Registers,
+    pub(crate) regs: Registers,
     memory: Memory,
 }
 
 impl Machine {
+    pub fn from_memory(memory: Memory) -> Self {
+        Self { regs: Registers::default(), memory }
+    }
+
+    pub fn dispatch(&mut self, pc: Word) -> Word {
+        dispatch::dispatch(self, pc)
+    }
+
     // Reg Type: rd, rs1, rs2
     // rd = rs1 OP rs2
     fn add(&mut self, rd: Reg, rs1: Reg, rs2: Reg, pc: Word) -> Word {
@@ -280,6 +288,7 @@ impl Machine {
 
     //== HELPER FUNCTIONS ==//
     fn next(&self, pc: Word) -> Result<JTC_1701, ExceptionType> {
+        // TODO: Check for interrupt from Interrupt Controller
         self.memory
             .read_word(pc)
             .ok_or(ExceptionType::PageFault)

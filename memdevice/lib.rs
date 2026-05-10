@@ -1,14 +1,16 @@
 // I will pay for my hubris one day
 #![expect(incomplete_features)]
 #![allow(clippy::doc_lazy_continuation)]
-#![feature(generic_const_exprs, const_trait_impl, const_cmp, const_ops)]
+#![feature(generic_const_exprs, const_trait_impl, const_cmp, const_ops, const_convert)]
 
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
 use balanced_ternary::Ternary;
 
-type Word = Ternary<27>;
+pub mod devices;
+
+type Word  = Ternary<27>;
 type Tryte = Ternary<9>;
 
 pub type Addr = Word;
@@ -73,24 +75,26 @@ impl MemEntry {
 /// - DMA?
 /// - Unaligned accesses for devices?
 #[expect(unused)]
-pub trait MemoryDevice: Debug {
+pub const trait MemoryDevice: Debug {
     fn write_tryte(&mut self, offset: Addr, value: Tryte);
     fn write_word(&mut self, offset: Addr, value: Word);
 
     fn read_tryte(&self, offset: Addr) -> Tryte;
     fn read_word(&self, offset: Addr) -> Word;
 
-    /// Default impl that calls [`MemoryDevice::write_tryte`] in a loop
+    /// Default impl calls [`MemoryDevice::write_tryte`] in a loop
     fn write_trytes(&mut self, offset: Addr, value: &[Tryte]) {
         todo!()
     }
-    /// Default impl that calls [`MemoryDevice::write_word`] in a loop
+    /// Default impl calls [`MemoryDevice::write_word`] in a loop
     fn write_words(&mut self, offset: Addr, value: &[Word]) {
         todo!()
     }
 
     // NOTE: Remove these? We can write in a loop, but when reading we can't
-    // assume the internal representation can deref into a slice
+    // assume the internal representation can deref into a slice.
+    // In fact it's nearly guaranteed it *cannot* be unless I pull some
+    // *really* insane paging tricks somehow.
     fn read_trytes(&mut self, offset: Addr) -> &[Tryte] {
         todo!()
     }

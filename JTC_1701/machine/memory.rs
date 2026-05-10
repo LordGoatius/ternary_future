@@ -2,13 +2,21 @@ use memdevice::{Addr, MemEntry};
 
 use crate::instr::{Tryte, Word};
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Memory {
     /// MemEntries must be sorted
     memspace: &'static mut [MemEntry],
 }
 
 impl Memory {
+    pub fn from_slice(memspace: &'static mut [MemEntry]) -> Self {
+        Self { memspace }
+    }
+
+    pub fn from_vec(vec: Vec<MemEntry>) -> Self {
+        todo!()
+    }
+
     fn find_device_index(&self, addr: Addr) -> Option<usize> {
         self.memspace
             .binary_search_by(|val| val.valid_addr(addr))
@@ -66,12 +74,12 @@ pub mod tests {
             println!("write_word called: offset {offset}, value {value}");
         }
 
-        fn read_tryte(&mut self, offset: Addr) -> Tryte {
+        fn read_tryte(&self, offset: Addr) -> Tryte {
             println!("read_tryte called: offset {offset}");
             Tryte::ZERO
         }
 
-        fn read_word(&mut self, offset: Addr) -> Word {
+        fn read_word(&self, offset: Addr) -> Word {
             println!("read_word called: offset {offset}");
             Word::ZERO
         }

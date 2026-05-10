@@ -96,7 +96,7 @@ pub mod tests {
             println!("{enc:?}");
             let dec = decode(enc);
             println!("{dec:?}");
-            assert_eq!(instr, dec);
+            assert_eq!(instr, dec.unwrap());
         }
     }
 }

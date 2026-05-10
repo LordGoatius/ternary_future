@@ -66,8 +66,8 @@ where
         f.write_str(name[2])?;
         f.write_str(name[3])?;
         f.debug_struct("")
-            .field_with("pos", |f| write!(f, "{:b}", &self.pos))
-            .field_with("neg", |f| write!(f, "{:b}", &self.neg))
+            .field_with("pos", |f| write!(f, "0b{:032b}", &self.pos))
+            .field_with("neg", |f| write!(f, "0b{:032b}", &self.neg))
             .finish()
     }
 }
