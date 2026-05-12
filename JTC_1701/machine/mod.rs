@@ -287,7 +287,7 @@ impl Machine {
     }
 
     //== HELPER FUNCTIONS ==//
-    fn next(&self, pc: Word) -> Result<JTC_1701, ExceptionType> {
+    fn next(&mut self, pc: Word) -> Result<JTC_1701, ExceptionType> {
         // TODO: Check for interrupt from Interrupt Controller
         self.memory
             .read_word(pc)

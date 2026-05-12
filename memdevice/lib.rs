@@ -1,7 +1,14 @@
 // I will pay for my hubris one day
 #![expect(incomplete_features)]
 #![allow(clippy::doc_lazy_continuation)]
-#![feature(generic_const_exprs, const_trait_impl, const_cmp, const_ops, const_convert)]
+#![feature(
+    const_trait_impl,
+    const_cmp,
+    const_ops,
+    const_convert,
+    explicit_tail_calls,
+    generic_const_exprs,
+)]
 
 use std::cmp::Ordering;
 use std::fmt::Debug;
@@ -10,7 +17,7 @@ use balanced_ternary::Ternary;
 
 pub mod devices;
 
-type Word  = Ternary<27>;
+type Word = Ternary<27>;
 type Tryte = Ternary<9>;
 
 pub type Addr = Word;
@@ -31,15 +38,15 @@ impl MemEntry {
 
     pub const fn valid_addr(&self, addr: Addr) -> Ordering {
         match addr.cmp(&self.base) {
-            Ordering::Less    => Ordering::Greater,
-            Ordering::Equal   => Ordering::Equal,
+            Ordering::Less => Ordering::Greater,
+            Ordering::Equal => Ordering::Equal,
             Ordering::Greater => {
                 if addr < (self.base + self.size) {
                     Ordering::Equal
                 } else {
                     Ordering::Less
                 }
-            },
+            }
         }
     }
 
@@ -51,11 +58,11 @@ impl MemEntry {
         self.dev.write_word(offset, value);
     }
 
-    pub fn read_tryte(&self, offset: Addr) -> Tryte {
+    pub fn read_tryte(&mut self, offset: Addr) -> Tryte {
         self.dev.read_tryte(offset)
     }
 
-    pub fn read_word(&self, offset: Addr) -> Word {
+    pub fn read_word(&mut self, offset: Addr) -> Word {
         self.dev.read_word(offset)
     }
 }
@@ -79,8 +86,8 @@ pub const trait MemoryDevice: Debug {
     fn write_tryte(&mut self, offset: Addr, value: Tryte);
     fn write_word(&mut self, offset: Addr, value: Word);
 
-    fn read_tryte(&self, offset: Addr) -> Tryte;
-    fn read_word(&self, offset: Addr) -> Word;
+    fn read_tryte(&mut self, offset: Addr) -> Tryte;
+    fn read_word(&mut self, offset: Addr) -> Word;
 
     /// Default impl calls [`MemoryDevice::write_tryte`] in a loop
     fn write_trytes(&mut self, offset: Addr, value: &[Tryte]) {
@@ -102,8 +109,6 @@ pub const trait MemoryDevice: Debug {
         todo!()
     }
 }
-
-pub struct Ram();
 
 #[cfg(test)]
 mod tests {}

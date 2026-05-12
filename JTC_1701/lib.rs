@@ -24,7 +24,7 @@ pub mod tests {
     #[test]
     #[cfg(feature = "ext_mul")]
     fn test_basic_machine() {
-        use memdevice::devices::rom::ROM;
+        use memdevice::devices::rom::Rom;
 
         use crate::{instr::{Word, dec::Imm18}, machine::memory::Memory};
         // 0 add r1, r1, 1
@@ -60,7 +60,7 @@ pub mod tests {
                     // HLT
             /* 24 */ encode(JTC_1701::ECALL(A, Imm18::ZERO))
         ];
-        let rom = ROM::new(instrs);
+        let rom = Rom::new(instrs);
         let memdevice = Box::leak(Box::new(rom)).to_mementry(Word::ZERO);
 
         let mem = Memory::from_slice(vec![memdevice].leak());
@@ -81,7 +81,7 @@ pub mod benches {
 
     #[bench]
     fn bench_factorial(b: &mut Bencher) {
-        use memdevice::devices::rom::ROM;
+        use memdevice::devices::rom::Rom;
 
         use crate::{instr::{Word, dec::Imm18}, machine::memory::Memory};
         // 0 add r1, r1, 1
@@ -117,7 +117,7 @@ pub mod benches {
                     // HLT
             /* 24 */ encode(JTC_1701::ECALL(A, Imm18::ZERO))
         ];
-        static mut ROM: ROM<9> = ROM::new(INSTRS);
+        static mut ROM: Rom<9> = Rom::new(INSTRS);
         #[allow(static_mut_refs)]
         // SAFETY: Unsafe in a test is fine, it's just to ensure it all works.
         static mut MEMSLICE: &mut [MemEntry] = &mut [unsafe { ROM.to_mementry(Word::ZERO) }];

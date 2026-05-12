@@ -43,14 +43,14 @@ impl Memory {
         })
     }
 
-    pub fn read_tryte(&self, addr: Addr) -> Option<Tryte> {
-        self.find_device(addr).map(|dev| {
+    pub fn read_tryte(&mut self, addr: Addr) -> Option<Tryte> {
+        self.find_device_mut(addr).map(|dev| {
             dev.read_tryte(addr - dev.base)
         })
     }
 
-    pub fn read_word(&self, addr: Addr) -> Option<Word> {
-        self.find_device(addr).map(|dev| {
+    pub fn read_word(&mut self, addr: Addr) -> Option<Word> {
+        self.find_device_mut(addr).map(|dev| {
             dev.read_word(addr - dev.base)
         })
     }
@@ -74,12 +74,12 @@ pub mod tests {
             println!("write_word called: offset {offset}, value {value}");
         }
 
-        fn read_tryte(&self, offset: Addr) -> Tryte {
+        fn read_tryte(&mut self, offset: Addr) -> Tryte {
             println!("read_tryte called: offset {offset}");
             Tryte::ZERO
         }
 
-        fn read_word(&self, offset: Addr) -> Word {
+        fn read_word(&mut self, offset: Addr) -> Word {
             println!("read_word called: offset {offset}");
             Word::ZERO
         }
