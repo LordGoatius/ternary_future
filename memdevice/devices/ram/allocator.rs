@@ -69,7 +69,6 @@ fn alloc_slab() -> NonNull<Slab> {
 
 impl Slab {
     fn alloc_ternpage(&mut self) -> Option<NonNull<TernaryPage>> {
-        println!("ALLOCATING TERNPAGE");
         if self.full() {
             None
         } else {
@@ -104,10 +103,6 @@ const RES_SIZE: usize = {
 };
 
 const _: () = assert!(size_of::<Slab>() == LARGEPAGE_BYTES);
-
-pub struct Ram<const PAGES: usize> {
-    pages: ()
-}
 
 const LARGEPAGE_BYTES: usize = 2usize.pow(31);
 const TERNPAGE_BYTES: usize = size_of::<TernaryPage>();

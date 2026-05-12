@@ -51,8 +51,8 @@ impl Ram {
     }
 
     fn get_word(&mut self, addr: Addr) -> Word {
-        let partial: Partial = dbg!(addr.slice(7));
-        let val = dbg!(self.memory.entry(partial)).or_insert_with( ||
+        let partial: Partial = addr.slice(7);
+        let val = self.memory.entry(partial).or_insert_with( ||
             ALLOCATOR
                 .lock()
                 .expect("Unable to Lock Memory Allocator")
@@ -70,8 +70,8 @@ impl Ram {
     }
 
     fn set_word(&mut self, addr: Addr, word: Word) {
-        let partial: Partial = dbg!(addr.slice(7));
-        let val = dbg!(self.memory.entry(partial)).or_insert_with( ||
+        let partial: Partial = addr.slice(7);
+        let val = self.memory.entry(partial).or_insert_with( ||
             ALLOCATOR
                 .lock()
                 .expect("Unable to Lock Memory Allocator")
@@ -80,7 +80,7 @@ impl Ram {
 
         let index: Index = addr.slice(0);
         if index.get_trit(0) != Trit::ZERO { panic!("unaligned read") }
-        let index: isize = dbg!(index.into());
+        let index: isize = index.into();
         let index: usize = (index + (PAGE_SIZE as isize / 2)) as usize;
 
         unsafe {
@@ -89,42 +89,44 @@ impl Ram {
     }
 
     fn get_tryte(&mut self, addr: Addr) -> Tryte {
-        let partial: Partial = dbg!(addr.slice(7));
-        let val = dbg!(self.memory.entry(partial)).or_insert_with( ||
+        let addr = addr - Word::ONE;
+        let partial: Partial = addr.slice(7);
+        let val = self.memory.entry(partial).or_insert_with( ||
             ALLOCATOR
                 .lock()
                 .expect("Unable to Lock Memory Allocator")
                 .alloc(),
         );
 
-        let index: Index = dbg!(addr.slice(0));
-        let index: isize = dbg!(index.into());
-        let index: usize = dbg!(((index / 3) + (PAGE_SIZE as isize / 2)) as usize);
+        let index: Index = addr.slice(0);
+        let index1: isize = index.into();
+        let index: usize = (((index1 + 1).div_floor(3)) + (PAGE_SIZE as isize / 2)) as usize;
 
-        let slice_ind = dbg!(index % 3);
+        let slice_ind = (index1 + 1).rem_euclid(3);
 
         unsafe {
-            val.as_mut().0[dbg!(index)].slice(9 * slice_ind as u32)
+            val.as_mut().0[index].slice(9 * slice_ind as u32)
         }
     }
 
     fn set_tryte(&mut self, addr: Addr, tryte: Tryte) {
-        let partial: Partial = dbg!(addr.slice(7));
-        let val = dbg!(self.memory.entry(partial)).or_insert_with( ||
+        let addr = addr - Word::ONE;
+        let partial: Partial = addr.slice(7);
+        let val = self.memory.entry(partial).or_insert_with( ||
             ALLOCATOR
                 .lock()
                 .expect("Unable to Lock Memory Allocator")
                 .alloc(),
         );
 
-        let index: Index = dbg!(addr.slice(0));
-        let index: isize = dbg!(index.into());
-        let index: usize = dbg!(((index / 3) + (PAGE_SIZE as isize / 2)) as usize);
+        let index: Index = addr.slice(0);
+        let index1: isize = index.into();
+        let index: usize = (((index1 + 1).div_floor(3)) + (PAGE_SIZE as isize / 2)) as usize;
 
-        let slice_ind = dbg!(index % 3);
+        let slice_ind = (index1 + 1).rem_euclid(3);
 
         unsafe {
-            let val = &mut val.as_mut().0[dbg!(index)];
+            let val = &mut val.as_mut().0[index];
             *val = val.set(tryte, 9 * slice_ind as u32);
         }
     }
@@ -132,8 +134,6 @@ impl Ram {
 
 #[cfg(test)]
 mod tests {
-    use balanced_ternary::Trit;
-
     use crate::{MemoryDevice, Tryte, Word, devices::ram::Ram};
 
     #[test]
@@ -149,13 +149,22 @@ mod tests {
         for i in -1093..=1093 {
             let i: Tryte = i.try_into().unwrap();
             ram.write_tryte(i.extend(), i);
-            println!();
         }
         println!();
         for i in -1093..=1093 {
             let i: Tryte = i.try_into().unwrap();
-            println!("i: {i}");
-            assert_eq!(dbg!(ram.read_tryte(i.extend())), dbg!(i));
+            assert_eq!(ram.read_tryte(i.extend()), i);
         }
+    }
+
+    #[test]
+    fn test_both() {
+        let mut ram = Ram::new(Word::ZERO);
+        ram.write_tryte(Word::ZERO, Tryte::MAX);
+        assert_eq!(ram.read_word(Word::ZERO), Tryte::MAX.extend());
+        ram.write_tryte(Word::ONE, Tryte::MAX);
+        assert_eq!(ram.read_word(Word::ZERO), Tryte::MAX.extend().set(Tryte::MAX, 9));
+        ram.write_tryte(Word::TWO, Tryte::MAX);
+        assert_eq!(ram.read_word(Word::ZERO), Word::MAX);
     }
 }
