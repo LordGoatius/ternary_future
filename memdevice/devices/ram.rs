@@ -2,7 +2,7 @@ use std::{collections::BTreeMap, ptr::NonNull, sync::Mutex};
 
 use balanced_ternary::{Ternary, Trit};
 
-use crate::{Addr, MemoryDevice, Tryte, Word, devices::ram::allocator::TernaryPageAllocator};
+use crate::{Addr, MemEntry, MemoryDevice, Tryte, Word, devices::ram::allocator::TernaryPageAllocator};
 
 mod allocator;
 
@@ -25,6 +25,7 @@ type Index   = Ternary<7>;
 pub struct Ram {
     memory: BTreeMap<Partial, NonNull<TernaryPage>>,
     base: Word,
+    size: Word,
 }
 
 impl MemoryDevice for Ram {
@@ -46,8 +47,14 @@ impl MemoryDevice for Ram {
 }
 
 impl Ram {
-    pub fn new(base: Word) -> Ram {
-        Ram { memory: BTreeMap::new(), base }        
+    pub const fn new(base: Word, size: Word) -> Ram {
+        Ram { memory: BTreeMap::new(), base, size }
+    }
+
+    pub const fn to_mementry(&'static mut self) -> MemEntry {
+        let base = self.base;
+        let size = self.size;
+        MemEntry { dev: self, base, size }
     }
 
     fn get_word(&mut self, addr: Addr) -> Word {
@@ -138,14 +145,14 @@ mod tests {
 
     #[test]
     fn test_memory() {
-        let mut ram = Ram::new(Word::ZERO);
+        let mut ram = Ram::new(Word::ZERO, Word::MAX);
         ram.write_word(Word::ZERO, Word::MAX);
         assert_eq!(ram.read_word(Word::ZERO), Word::MAX);
     }
 
     #[test]
     fn test_tryte() {
-        let mut ram = Ram::new(Word::ZERO);
+        let mut ram = Ram::new(Word::ZERO, Word::MAX);
         for i in -1093..=1093 {
             let i: Tryte = i.try_into().unwrap();
             ram.write_tryte(i.extend(), i);
@@ -159,7 +166,7 @@ mod tests {
 
     #[test]
     fn test_both() {
-        let mut ram = Ram::new(Word::ZERO);
+        let mut ram = Ram::new(Word::ZERO, Word::MAX);
         ram.write_tryte(Word::ZERO, Tryte::MAX);
         assert_eq!(ram.read_word(Word::ZERO), Tryte::MAX.extend());
         ram.write_tryte(Word::ONE, Tryte::MAX);

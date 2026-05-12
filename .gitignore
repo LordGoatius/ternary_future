@@ -9,3 +9,13 @@
 !README.md
 !septivigntimal/*
 !ternary/*
+
+!JTC_1701/*.rs
+!memdevice/*.rs
+!septivigntimal/*.rs
+!ternary/*.rs
+
+!JTC_1701/**/**/*.rs
+!memdevice/**/**/*.rs
+!septivigntimal/**/**/*.rs
+!ternary/**/**/*.rs
