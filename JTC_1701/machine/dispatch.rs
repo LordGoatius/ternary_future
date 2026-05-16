@@ -494,14 +494,14 @@ fn ebreak(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exce
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.ebreak(rd, imm18, pc);
-    let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
-    become TABLE[next.disc() as usize](machine, next, pc)
+    Err(Exception(pc, ExceptionType::EBreak))
 }
 fn sret(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception> {
     let JTC_1701::SRET(rd, imm18) = instr else {
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
     let pc = machine.sret(rd, imm18, pc);
+    // I probably need to dispatch here
     let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)
 }
@@ -509,6 +509,7 @@ fn wfi(machine: &mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Excepti
     let JTC_1701::WFI(rd, imm18) = instr else {
         return Err(Exception(pc, ExceptionType::IllegalInstr));
     };
+    // TODO: Busy loop?
     let pc = machine.wfi(rd, imm18, pc);
     let next = machine.next(pc).map_err(|err| Exception(pc, err))?;
     become TABLE[next.disc() as usize](machine, next, pc)

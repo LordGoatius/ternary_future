@@ -7,4 +7,5 @@ pub enum ExceptionType {
     ECall,
     EBreak,
     SRet,
+    Interrupt,
 }

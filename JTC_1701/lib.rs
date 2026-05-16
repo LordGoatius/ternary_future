@@ -1,5 +1,5 @@
 #![expect(incomplete_features)]
-#![feature(generic_const_exprs, const_trait_impl, explicit_tail_calls)]
+#![feature(generic_const_exprs, const_trait_impl, explicit_tail_calls, type_info)]
 #![cfg_attr(test, feature(test))]
 #![allow(non_snake_case)]
 #![cfg(test)]
