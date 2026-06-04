@@ -280,7 +280,7 @@ impl Machine {
     }
     // System (S)
     fn csrw(&mut self, rs1: Reg, rs2: Reg, imm12: Imm12, pc: Word) -> Word {
-        self.csr.
+        // self.csr.
         todo!()
     }
     // System (I)

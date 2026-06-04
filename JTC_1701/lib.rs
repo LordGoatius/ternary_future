@@ -64,7 +64,7 @@ pub mod tests {
 
         let mut machine = Machine::from_memory(mem);
         machine.dispatch(Word::ZERO);
-        assert_eq!(machine.regs[C], Word::from_str("1000T00"));
+        assert_eq!(machine.regs.get(C), Word::from_str("1000T00"));
     }
 
     #[test]
@@ -128,6 +128,7 @@ pub mod tests {
         // }
         // mov rn11, 2
         // mov rn13, n
+        // mov rn10, 729 / 2 ; top word in our current 
         // call FACT
         // b HALT
         // ; n is passed in rn13
@@ -136,12 +137,12 @@ pub mod tests {
         //     mov rn12, 2
         //     b return
         // CALC:
-        //     sw  rn11, rn13 ; push onto stack
-        //     add rn11, 3    ; push onto stack
+        //     sw  rn10, rn13 ; push onto stack
+        //     sub rn10, 3    ; push onto stack
         //     sub rn13, 1
         //     call FACT  ; return in rn12
-        //     sub rn11, 3    ; pop from stack
-        //     lw  rn13, rn11 ; pop from stack
+        //     add rn10, 3    ; pop from stack
+        //     lw  rn13, rn10 ; pop from stack
         //     mul rn13, rn12
         // RET:
         //     ret

@@ -165,6 +165,19 @@ mod tests {
     }
 
     #[test]
+    fn test_word() {
+        let mut ram = Ram::new(Word::ZERO, Word::MAX);
+        for i in -364..=364 {
+            let word: Word = i.try_into().unwrap();
+            ram.write_word(word, (i * 3).try_into().unwrap());
+        }
+        for i in -364..=364 {
+            let word: Word = i.try_into().unwrap();
+            assert_eq!(ram.read_word((i * 3).try_into().unwrap()), word);
+        }
+    }
+
+    #[test]
     fn test_both() {
         let mut ram = Ram::new(Word::ZERO, Word::MAX);
         ram.write_tryte(Word::ZERO, Tryte::MAX);

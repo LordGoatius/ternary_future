@@ -8,7 +8,7 @@ use crate::{
 
 pub struct Exception(Word, ExceptionType);
 
-type DispatchFn = fn(&mut Machine, instr: JTC_1701, pc: Word) -> Result<Word, Exception>;
+type DispatchFn = fn(&mut Machine, JTC_1701, Word) -> Result<Word, Exception>;
 
 const DEFAULT_TABLE_SIZE: usize = 36;
 const MUL_TABLE_SIZE: usize = 6;
