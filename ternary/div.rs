@@ -1,11 +1,14 @@
-use core::ops::{Div, DivAssign};
 use core::ops::Rem;
 use core::ops::RemAssign;
+use core::ops::{Div, DivAssign};
 
 use crate::Ternary;
 
 #[inline]
-pub fn div<const SIZE: usize>(lhs: Ternary<SIZE>, rhs: Ternary<SIZE>) -> Option<(Ternary<SIZE>, Ternary<SIZE>)>
+pub fn div<const SIZE: usize>(
+    lhs: Ternary<SIZE>,
+    rhs: Ternary<SIZE>,
+) -> Option<(Ternary<SIZE>, Ternary<SIZE>)>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -17,8 +20,14 @@ where
         // This is my greatest shame
         let val1: isize = lhs.into();
         let val2: isize = rhs.into();
-        let q = val1.div_euclid(val2).try_into().expect("Couldn't convert into ternary");
-        let r = val1.rem_euclid(val2).try_into().expect("Couldn't convert into ternary");
+        let q = val1
+            .div_euclid(val2)
+            .try_into()
+            .expect("Couldn't convert into ternary");
+        let r = val1
+            .rem_euclid(val2)
+            .try_into()
+            .expect("Couldn't convert into ternary");
         Some((q, r))
     }
 }
@@ -288,6 +297,5 @@ pub mod tests {
 
         assert_eq!(nine, twenty_seven / three);
         assert_eq!(three, nine / three);
-
     }
 }

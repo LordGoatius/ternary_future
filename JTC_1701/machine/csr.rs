@@ -34,10 +34,34 @@ pub(crate) struct Csr {
 }
 
 impl Csr {
-    pub fn read(&self, index: CSR) -> Word {
-        self.values[index as usize]
+    pub fn read(&self, csr: CSR) -> Word {
+        match csr {
+            CSR::SSTATUS => todo!(),
+            CSR::SIE => todo!(),
+            CSR::STVEC => todo!(),
+            CSR::SCOUNTEREN => todo!(),
+            CSR::SSCRATCH => todo!(),
+            CSR::SEPC => todo!(),
+            CSR::STCAUSE => todo!(),
+            CSR::STVAL => todo!(),
+            CSR::SIP => todo!(),
+            CSR::SATP => todo!(),
+        }
+        self.values[csr as usize]
     }
-    pub fn write(&mut self, index: CSR, value: Word) {
-        self.values[index as usize] = value
+    pub fn write(&mut self, csr: CSR, value: Word) {
+        match csr {
+            CSR::SSTATUS => todo!(),
+            CSR::SIE => todo!(),
+            CSR::STVEC => todo!(),
+            CSR::SCOUNTEREN => todo!(),
+            CSR::SSCRATCH => todo!(),
+            CSR::SEPC => todo!(),
+            CSR::STCAUSE => todo!(),
+            CSR::STVAL => todo!(),
+            CSR::SIP => todo!(),
+            CSR::SATP => todo!(),
+        }
+        self.values[csr as usize] = value
     }
 }

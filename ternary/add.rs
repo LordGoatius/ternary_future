@@ -1,9 +1,9 @@
 use core::ops::{Add, AddAssign};
 
-use crate::helper::add;
 use super::Ternary;
+use crate::helper::add;
 
-impl<const SIZE: usize> const Add<Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> Add<Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -13,7 +13,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Add<Ternary<SIZE>> for &Ternary<SIZE>
+const impl<const SIZE: usize> Add<Ternary<SIZE>> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -23,7 +23,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Add<Ternary<SIZE>> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> Add<Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -33,7 +33,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Add<&Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> Add<&Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -43,7 +43,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Add<&Ternary<SIZE>> for &Ternary<SIZE>
+const impl<const SIZE: usize> Add<&Ternary<SIZE>> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -53,7 +53,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Add<&Ternary<SIZE>> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> Add<&Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -63,7 +63,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Add<&mut Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> Add<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -73,7 +73,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Add<&mut Ternary<SIZE>> for &Ternary<SIZE>
+const impl<const SIZE: usize> Add<&mut Ternary<SIZE>> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -83,7 +83,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Add<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> Add<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -93,7 +93,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const AddAssign<Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> AddAssign<Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -102,7 +102,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const AddAssign<&Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> AddAssign<&Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -111,7 +111,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const AddAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> AddAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -120,7 +120,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const AddAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> AddAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {

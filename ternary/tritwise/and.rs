@@ -4,10 +4,7 @@ use crate::Ternary;
 
 // binary and ternary `and` functions like a `min` function on each bit/trit.
 #[inline]
-pub const fn and<const SIZE: usize>(
-    lhs: Ternary<SIZE>,
-    rhs: Ternary<SIZE>,
-) -> Ternary<SIZE>
+pub const fn and<const SIZE: usize>(lhs: Ternary<SIZE>, rhs: Ternary<SIZE>) -> Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -17,7 +14,7 @@ where
     Ternary { pos, neg }
 }
 
-impl<const SIZE: usize> const BitAnd<Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> BitAnd<Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -28,7 +25,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAnd<Ternary<SIZE>> for &Ternary<SIZE>
+const impl<const SIZE: usize> BitAnd<Ternary<SIZE>> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -38,7 +35,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAnd<Ternary<SIZE>> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> BitAnd<Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -48,7 +45,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAnd<&Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> BitAnd<&Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -58,7 +55,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAnd<&Ternary<SIZE>> for &Ternary<SIZE>
+const impl<const SIZE: usize> BitAnd<&Ternary<SIZE>> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -68,7 +65,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAnd<&Ternary<SIZE>> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> BitAnd<&Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -78,7 +75,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAnd<&mut Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> BitAnd<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -88,7 +85,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAnd<&mut Ternary<SIZE>> for &Ternary<SIZE>
+const impl<const SIZE: usize> BitAnd<&mut Ternary<SIZE>> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -98,7 +95,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAnd<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> BitAnd<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -108,7 +105,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAndAssign<Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> BitAndAssign<Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -117,7 +114,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAndAssign<&Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> BitAndAssign<&Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -126,7 +123,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAndAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
+const impl<const SIZE: usize> BitAndAssign<&mut Ternary<SIZE>> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -135,7 +132,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const BitAndAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> BitAndAssign<&mut Ternary<SIZE>> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {

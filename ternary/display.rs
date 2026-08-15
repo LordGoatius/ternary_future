@@ -5,16 +5,16 @@ use super::Ternary;
 /// Evil hack to allow printing generic const values with debug impl
 const fn to_str<const SIZE: usize>() -> &'static str {
     match SIZE {
-        0  => "0",
-        1  => "1",
-        2  => "2",
-        3  => "3",
-        4  => "4",
-        5  => "5",
-        6  => "6",
-        7  => "7",
-        8  => "8",
-        9  => "9",
+        0 => "0",
+        1 => "1",
+        2 => "2",
+        3 => "3",
+        4 => "4",
+        5 => "5",
+        6 => "6",
+        7 => "7",
+        8 => "8",
+        9 => "9",
         10 => "10",
         11 => "11",
         12 => "12",
@@ -38,7 +38,7 @@ const fn to_str<const SIZE: usize>() -> &'static str {
         30 => "30",
         31 => "31",
         32 => "32",
-        _ => panic!()
+        _ => panic!(),
     }
 }
 

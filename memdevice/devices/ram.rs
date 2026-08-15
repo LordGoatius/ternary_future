@@ -2,7 +2,9 @@ use std::{collections::BTreeMap, ptr::NonNull, sync::Mutex};
 
 use balanced_ternary::{Ternary, Trit};
 
-use crate::{Addr, MemEntry, MemoryDevice, Tryte, Word, devices::ram::allocator::TernaryPageAllocator};
+use crate::{
+    devices::ram::allocator::TernaryPageAllocator, Addr, MemEntry, MemoryDevice, Tryte, Word,
+};
 
 mod allocator;
 
@@ -18,7 +20,7 @@ struct TernaryPage([Word; PAGE_SIZE]);
 static ALLOCATOR: Mutex<TernaryPageAllocator> = Mutex::new(TernaryPageAllocator::new());
 
 type Partial = Ternary<20>;
-type Index   = Ternary<7>;
+type Index = Ternary<7>;
 
 // I really don't want to mutex Ram, but if I do multithreading, it may be necessary
 #[derive(Debug)]
@@ -48,45 +50,55 @@ impl MemoryDevice for Ram {
 
 impl Ram {
     pub const fn new(base: Word, size: Word) -> Ram {
-        Ram { memory: BTreeMap::new(), base, size }
+        Ram {
+            memory: BTreeMap::new(),
+            base,
+            size,
+        }
     }
 
     pub const fn to_mementry(&'static mut self) -> MemEntry {
         let base = self.base;
         let size = self.size;
-        MemEntry { dev: self, base, size }
+        MemEntry {
+            dev: self,
+            base,
+            size,
+        }
     }
 
     fn get_word(&mut self, addr: Addr) -> Word {
         let partial: Partial = addr.slice(7);
-        let val = self.memory.entry(partial).or_insert_with( ||
+        let val = self.memory.entry(partial).or_insert_with(|| {
             ALLOCATOR
                 .lock()
                 .expect("Unable to Lock Memory Allocator")
-                .alloc(),
-        );
+                .alloc()
+        });
 
         let index: Index = addr.slice(0);
-        if index.get_trit(0) != Trit::ZERO { panic!("unaligned read") }
+        if index.get_trit(0) != Trit::ZERO {
+            panic!("unaligned read")
+        }
         let index: isize = index.into();
         let index: usize = (index + (PAGE_SIZE as isize / 2)) as usize;
 
-        unsafe {
-            val.as_mut().0[index]
-        }
+        unsafe { val.as_mut().0[index] }
     }
 
     fn set_word(&mut self, addr: Addr, word: Word) {
         let partial: Partial = addr.slice(7);
-        let val = self.memory.entry(partial).or_insert_with( ||
+        let val = self.memory.entry(partial).or_insert_with(|| {
             ALLOCATOR
                 .lock()
                 .expect("Unable to Lock Memory Allocator")
-                .alloc(),
-        );
+                .alloc()
+        });
 
         let index: Index = addr.slice(0);
-        if index.get_trit(0) != Trit::ZERO { panic!("unaligned read") }
+        if index.get_trit(0) != Trit::ZERO {
+            panic!("unaligned read")
+        }
         let index: isize = index.into();
         let index: usize = (index + (PAGE_SIZE as isize / 2)) as usize;
 
@@ -98,12 +110,12 @@ impl Ram {
     fn get_tryte(&mut self, addr: Addr) -> Tryte {
         let addr = addr - Word::ONE;
         let partial: Partial = addr.slice(7);
-        let val = self.memory.entry(partial).or_insert_with( ||
+        let val = self.memory.entry(partial).or_insert_with(|| {
             ALLOCATOR
                 .lock()
                 .expect("Unable to Lock Memory Allocator")
-                .alloc(),
-        );
+                .alloc()
+        });
 
         let index: Index = addr.slice(0);
         let index1: isize = index.into();
@@ -111,20 +123,18 @@ impl Ram {
 
         let slice_ind = (index1 + 1).rem_euclid(3);
 
-        unsafe {
-            val.as_mut().0[index].slice(9 * slice_ind as u32)
-        }
+        unsafe { val.as_mut().0[index].slice(9 * slice_ind as u32) }
     }
 
     fn set_tryte(&mut self, addr: Addr, tryte: Tryte) {
         let addr = addr - Word::ONE;
         let partial: Partial = addr.slice(7);
-        let val = self.memory.entry(partial).or_insert_with( ||
+        let val = self.memory.entry(partial).or_insert_with(|| {
             ALLOCATOR
                 .lock()
                 .expect("Unable to Lock Memory Allocator")
-                .alloc(),
-        );
+                .alloc()
+        });
 
         let index: Index = addr.slice(0);
         let index1: isize = index.into();
@@ -141,7 +151,7 @@ impl Ram {
 
 #[cfg(test)]
 mod tests {
-    use crate::{MemoryDevice, Tryte, Word, devices::ram::Ram};
+    use crate::{devices::ram::Ram, MemoryDevice, Tryte, Word};
 
     #[test]
     fn test_memory() {
@@ -183,7 +193,10 @@ mod tests {
         ram.write_tryte(Word::ZERO, Tryte::MAX);
         assert_eq!(ram.read_word(Word::ZERO), Tryte::MAX.extend());
         ram.write_tryte(Word::ONE, Tryte::MAX);
-        assert_eq!(ram.read_word(Word::ZERO), Tryte::MAX.extend().set(Tryte::MAX, 9));
+        assert_eq!(
+            ram.read_word(Word::ZERO),
+            Tryte::MAX.extend().set(Tryte::MAX, 9)
+        );
         ram.write_tryte(Word::TWO, Tryte::MAX);
         assert_eq!(ram.read_word(Word::ZERO), Word::MAX);
     }

@@ -4,10 +4,10 @@ pub mod and;
 pub mod or;
 pub mod xor;
 
-use crate::helper::neg;
 use crate::Ternary;
+use crate::helper::neg;
 
-impl<const SIZE: usize> const Neg for Ternary<SIZE>
+const impl<const SIZE: usize> Neg for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {

@@ -8,7 +8,7 @@
     const_convert,
     explicit_tail_calls,
     generic_const_exprs,
-    int_roundings,
+    int_roundings
 )]
 
 use std::cmp::Ordering;

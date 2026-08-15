@@ -38,17 +38,13 @@ where
         sum += Ternary { pos, neg: 0 } * bk;
         k += 1;
     }
-    if sign == 1 {
-        sum
-    } else {
-        -sum
-    }
+    if sign == 1 { sum } else { -sum }
 }
 
 // NOTE: An `isize` is always capable of holding a larger number
 // than a 32 bit ternary number
 
-impl<const SIZE: usize> const From<Ternary<SIZE>> for isize
+const impl<const SIZE: usize> From<Ternary<SIZE>> for isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -57,7 +53,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const From<&Ternary<SIZE>> for isize
+const impl<const SIZE: usize> From<&Ternary<SIZE>> for isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -66,7 +62,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const From<&mut Ternary<SIZE>> for isize
+const impl<const SIZE: usize> From<&mut Ternary<SIZE>> for isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -80,7 +76,7 @@ where
 #[derive(Debug)]
 pub struct TernaryConversionError;
 
-impl<const SIZE: usize> const TryInto<Ternary<SIZE>> for isize
+const impl<const SIZE: usize> TryInto<Ternary<SIZE>> for isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -96,7 +92,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const TryInto<Ternary<SIZE>> for &isize
+const impl<const SIZE: usize> TryInto<Ternary<SIZE>> for &isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -114,7 +110,7 @@ where
 
 // TODO: Fix the conversion errors, because it will succeed for some values it should fail at.
 
-impl<const SIZE: usize> const TryInto<Ternary<SIZE>> for &mut isize
+const impl<const SIZE: usize> TryInto<Ternary<SIZE>> for &mut isize
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -133,8 +129,8 @@ where
 #[cfg(test)]
 pub mod tests {
     use crate::{
-        convert::{into_isize, into_ternary},
         Ternary,
+        convert::{into_isize, into_ternary},
     };
 
     #[test]

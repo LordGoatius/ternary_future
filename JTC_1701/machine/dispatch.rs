@@ -74,6 +74,8 @@ static TABLE: [DispatchFn; DISPATCH_TABLE_SIZE] = [
     csrr,
 ];
 
+// TODO: 3 dispatch functions for each privlege level
+
 pub fn dispatch(machine: &mut Machine, pc: Word) -> Word {
     // Change return type of dispatch fn to exception enum
     let op = machine

@@ -4,7 +4,7 @@
 #![allow(
     clippy::cast_possible_truncation,
     clippy::cast_possible_wrap,
-    clippy::cast_sign_loss,
+    clippy::cast_sign_loss
 )]
 #![expect(incomplete_features)]
 #![feature(
@@ -15,26 +15,24 @@
     debug_closure_helpers,
     const_ops,
     const_cmp,
-    const_convert,
+    const_convert
 )]
 #![cfg_attr(not(test), no_std)]
-
 #![cfg_attr(test, feature(test))]
-
 #![warn(clippy::missing_const_for_fn)]
 
 use core::cmp::Ordering;
 
-mod helper;
 mod add;
-mod mul;
-mod sub;
-mod div;
-mod shift;
-mod tritwise;
 mod convert;
 mod display;
+mod div;
+mod helper;
+mod mul;
 mod ord;
+mod shift;
+mod sub;
+mod tritwise;
 
 pub type Trit = Ternary<1>;
 
@@ -74,8 +72,11 @@ where
 
     pub const ZERO: Self = Ternary { pos: 0, neg: 0 };
 
-    pub const ONE: Self = Ternary { pos:  0b1, neg:  0b0 };
-    pub const TWO: Self = Ternary { pos: 0b10, neg: 0b01 };
+    pub const ONE: Self = Ternary { pos: 0b1, neg: 0b0 };
+    pub const TWO: Self = Ternary {
+        pos: 0b10,
+        neg: 0b01,
+    };
     pub const THREE: Self = Self::ONE << 1;
 
     #[must_use]
@@ -138,9 +139,9 @@ where
             char = bytes[i];
             match char {
                 b'0' => (),
-                b'1' => val.set_trit(Trit::ONE, len - 1- i),
-                b'T' | b't' => val.set_trit(-Trit::ONE, len - 1- i),
-                _ => panic!("Invalid char in ternary conversion")
+                b'1' => val.set_trit(Trit::ONE, len - 1 - i),
+                b'T' | b't' => val.set_trit(-Trit::ONE, len - 1 - i),
+                _ => panic!("Invalid char in ternary conversion"),
             }
             i += 1;
         }
@@ -180,7 +181,10 @@ where
         [(); S2 + (usize::MAX - 32)]:,
     {
         let Ternary { pos, neg } = self;
-        let Ternary { pos: posval, neg: negval } = val;
+        let Ternary {
+            pos: posval,
+            neg: negval,
+        } = val;
 
         let mask = ((1 << S2) - 1) << index;
         // Erase bits
@@ -196,14 +200,23 @@ where
 }
 
 #[must_use]
-pub const fn concat<const S1: usize, const S2: usize, const S3: usize>(val1: Ternary<S1>, val2: Ternary<S2>) -> Ternary<{ S1 + S2 }>
+pub const fn concat<const S1: usize, const S2: usize, const S3: usize>(
+    val1: Ternary<S1>,
+    val2: Ternary<S2>,
+) -> Ternary<{ S1 + S2 }>
 where
     [(); S1 + (usize::MAX - 32)]:,
     [(); S2 + (usize::MAX - 32)]:,
     [(); (S1 + S2) + (usize::MAX - 32)]:,
 {
-    let Ternary { pos: pos1, neg: neg1 } = val1;
-    let Ternary { pos: pos2, neg: neg2 } = val2;
+    let Ternary {
+        pos: pos1,
+        neg: neg1,
+    } = val1;
+    let Ternary {
+        pos: pos2,
+        neg: neg2,
+    } = val2;
 
     let pos = (pos1 << S2) | (pos2 & ((1 << S2) - 1));
     let neg = (neg1 << S2) | (neg2 & ((1 << S2) - 1));

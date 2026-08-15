@@ -3,7 +3,7 @@ use core::ops::{Shr, ShrAssign};
 use super::shr;
 use crate::Ternary;
 
-impl<const SIZE: usize> const Shr<isize> for Ternary<SIZE>
+const impl<const SIZE: usize> Shr<isize> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -13,7 +13,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Shr<isize> for &Ternary<SIZE>
+const impl<const SIZE: usize> Shr<isize> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -23,7 +23,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Shr<isize> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> Shr<isize> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -33,7 +33,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Shr<&isize> for Ternary<SIZE>
+const impl<const SIZE: usize> Shr<&isize> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -43,7 +43,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Shr<&isize> for &Ternary<SIZE>
+const impl<const SIZE: usize> Shr<&isize> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -53,7 +53,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Shr<&isize> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> Shr<&isize> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -63,7 +63,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Shr<&mut isize> for Ternary<SIZE>
+const impl<const SIZE: usize> Shr<&mut isize> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -73,7 +73,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Shr<&mut isize> for &Ternary<SIZE>
+const impl<const SIZE: usize> Shr<&mut isize> for &Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -83,7 +83,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Shr<&mut isize> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> Shr<&mut isize> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -93,7 +93,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const ShrAssign<isize> for Ternary<SIZE>
+const impl<const SIZE: usize> ShrAssign<isize> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -102,7 +102,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const ShrAssign<&isize> for Ternary<SIZE>
+const impl<const SIZE: usize> ShrAssign<&isize> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -111,7 +111,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const ShrAssign<&mut isize> for Ternary<SIZE>
+const impl<const SIZE: usize> ShrAssign<&mut isize> for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -120,7 +120,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const ShrAssign<&mut isize> for &mut Ternary<SIZE>
+const impl<const SIZE: usize> ShrAssign<&mut isize> for &mut Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {

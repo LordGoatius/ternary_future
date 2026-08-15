@@ -11,7 +11,9 @@ impl<const SIZE: usize> Rom<SIZE> {
     }
 
     pub const fn to_mementry(&'static mut self, base: Word) -> MemEntry {
-        let Ok(size) = (SIZE as isize * 3).try_into() else { panic!() };
+        let Ok(size) = (SIZE as isize * 3).try_into() else {
+            panic!()
+        };
         MemEntry {
             dev: self,
             base,

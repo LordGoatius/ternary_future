@@ -10,7 +10,7 @@ where
     (val1 - val2).sign_innner()
 }
 
-impl<const SIZE: usize> const PartialOrd for Ternary<SIZE>
+const impl<const SIZE: usize> PartialOrd for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
@@ -19,7 +19,7 @@ where
     }
 }
 
-impl<const SIZE: usize> const Ord for Ternary<SIZE>
+const impl<const SIZE: usize> Ord for Ternary<SIZE>
 where
     [(); SIZE + (usize::MAX - 32)]:,
 {
