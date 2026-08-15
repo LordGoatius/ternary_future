@@ -201,7 +201,7 @@ pub(crate) const unsafe trait Encoding: Sized {
 }
 
 // TODO: Macro. Can't figure it out rn.
-unsafe impl const Encoding for RInstr {
+const unsafe impl Encoding for RInstr {
     fn get_imm3(&self) -> Option<Ternary<3>> {
         None
     }
@@ -219,7 +219,7 @@ unsafe impl const Encoding for RInstr {
     }
 }
 
-unsafe impl const Encoding for SInstr {
+const unsafe impl Encoding for SInstr {
     fn get_rd(&self) -> Option<Ternary<3>> {
         None
     }
@@ -241,7 +241,7 @@ unsafe impl const Encoding for SInstr {
     }
 }
 
-unsafe impl const Encoding for IInstr {
+const unsafe impl Encoding for IInstr {
     fn get_func4(&self) -> Option<Ternary<4>> {
         None
     }
@@ -267,7 +267,7 @@ unsafe impl const Encoding for IInstr {
     }
 }
 
-unsafe impl const Encoding for UInstr {
+const unsafe impl Encoding for UInstr {
     fn get_imm3(&self) -> Option<Ternary<3>> {
         None
     }

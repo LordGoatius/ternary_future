@@ -161,6 +161,7 @@ where
         Ternary { pos, neg }
     }
 
+    /// This functions takes in a [`Ternary<SIZE>`] and returns a [`Ternary<S2>`].
     #[inline]
     #[must_use]
     pub const fn extend<const S2: usize>(self) -> Ternary<S2>

@@ -1,5 +1,3 @@
-use std::hint::unreachable_unchecked;
-
 use ternary::concat;
 
 use crate::{instr::enc::Encoding, machine::err::ExceptionType};
