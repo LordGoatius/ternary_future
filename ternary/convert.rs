@@ -157,6 +157,10 @@ pub mod tests {
 
         let tone: Ternary<9> = Ternary::ONE;
 
+        let i: isize = ternary.into();
+        let t: Ternary<9> = i.try_into().unwrap();
+        assert_eq!(t, Ternary::MIN);
+
         for _ in 0..(3usize.pow(9)) {
             println!("0b{:b}, 0t{:b}", into_isize(ternary), ternary);
             let i: isize = ternary.into();

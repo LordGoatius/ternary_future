@@ -4,3 +4,4 @@ members = [ "ternary", "memdevice" , "septivigntimal", "JTC_1701"]
 
 [workspace.dependencies]
 itertools = "0.14.0"
+owo-colors = "4.3.0"

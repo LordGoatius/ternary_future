@@ -1,6 +1,9 @@
-use core::fmt::{Binary, Debug, Display};
+use core::fmt::{Binary, Debug, Display, LowerHex, UpperHex};
+
+use crate::display::septivigntimal::to_ascii_upper;
 
 use super::Ternary;
+pub mod septivigntimal;
 
 /// Evil hack to allow printing generic const values with debug impl
 const fn to_str<const SIZE: usize>() -> &'static str {
@@ -88,6 +91,36 @@ where
                 _ => (),
             }
         }
-        write!(f, "{}", unsafe { str::from_utf8_unchecked(&buf) })
+        f.write_str(unsafe { str::from_utf8_unchecked(&buf) })
+    }
+}
+
+impl<const SIZE: usize> LowerHex for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+    [(); (SIZE + 2).div_euclid(3)]:,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let mut buf: [u8; (SIZE + 2).div_euclid(3)] = [b'0'; (SIZE + 2).div_euclid(3)];
+        for i in 0..(SIZE + 2).div_euclid(3) {
+            let val: Ternary<3> = self.slice::<3>(i as u32 * 3);
+            buf[(SIZE + 2).div_euclid(3) - i - 1] = to_ascii_upper(val).to_ascii_lowercase();
+        }
+        f.write_str(unsafe { str::from_utf8_unchecked(&buf) })
+    }
+}
+
+impl<const SIZE: usize> UpperHex for Ternary<SIZE>
+where
+    [(); SIZE + (usize::MAX - 32)]:,
+    [(); (SIZE + 2).div_euclid(3)]:,
+{
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let mut buf: [u8; (SIZE + 2).div_euclid(3)] = [b'0'; (SIZE + 2).div_euclid(3)];
+        for i in 0..(SIZE + 2).div_euclid(3) {
+            let val: Ternary<3> = self.slice::<3>(i as u32 * 3);
+            buf[(SIZE + 2).div_euclid(3) - i - 1] = to_ascii_upper(val);
+        }
+        f.write_str(unsafe { str::from_utf8_unchecked(&buf) })
     }
 }

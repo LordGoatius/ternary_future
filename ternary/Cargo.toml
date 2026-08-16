@@ -8,6 +8,7 @@ name = "balanced_ternary"
 path = "lib.rs"
 
 [dependencies]
+itertools = { workspace = true }
 
 [features]
 default = []
