@@ -1,6 +1,6 @@
-use owo_colors::colors::*;
 use owo_colors::AnsiColors;
 use owo_colors::OwoColorize;
+use owo_colors::colors::Yellow;
 use std::cmp::Ordering;
 use std::{collections::BTreeMap, ptr::NonNull, sync::Mutex};
 
@@ -20,7 +20,8 @@ const PAGE_SIZE_TRYTES: usize = 3usize.pow(7);
 struct TernaryPage([Word; PAGE_SIZE]);
 
 //... This probably isn't ideal but this works.
-// TODO: Test extensively with miri.
+// ~~TODO: Test extensively with miri.~~
+// Nevermind miri doesn't support large allocations. It works tho.
 static ALLOCATOR: Mutex<TernaryPageAllocator> = Mutex::new(TernaryPageAllocator::new());
 
 type Partial = Ternary<20>;
@@ -59,7 +60,7 @@ fn print_page((start, page): (&Partial, &NonNull<TernaryPage>)) {
     let offset: Word = (PAGE_SIZE as isize / 2).try_into().unwrap();
     let mut start: Word = (start.extend() << 7) - offset;
     for i in 0..(PAGE_SIZE / 3) {
-        print!("0s{start:b}: ");
+        print!("{}{:x}: ", "0s".fg::<Yellow>(), start.fg::<Yellow>());
         for j in 0..3 {
             let word: Word = page[(i * 3) + j];
             let one: Tryte = word.slice::<9>(0);
@@ -125,8 +126,8 @@ impl Ram {
         });
 
         let index: Index = addr.slice(0);
-        if index.get_trit(0) != -Trit::ONE {
-            panic!("unaligned read")
+        if index.get_trit(0) != Trit::ZERO {
+            panic!("unaligned read: {}", addr)
         }
         let index: isize = (index >> 1).into();
         let index: usize = (index + (PAGE_SIZE as isize / 2)) as usize;
@@ -144,8 +145,8 @@ impl Ram {
         });
 
         let index: Index = addr.slice(0);
-        if index.get_trit(0) != -Trit::ONE {
-            panic!("unaligned read")
+        if index.get_trit(0) != Trit::ZERO {
+            panic!("unaligned read: {}", addr)
         }
         let index: isize = (index >> 1).into();
         let index: usize = (index + (PAGE_SIZE as isize / 2)) as usize;
@@ -202,12 +203,11 @@ mod tests {
     #[test]
     fn test_tryte() {
         let mut ram = Ram::new(Word::ZERO, Word::MAX);
-        for i in -1093..=1093 {
+        for i in -1094..=1095 {
             let i: Tryte = i.try_into().unwrap();
             ram.write_tryte(i.extend(), i);
         }
-        ram.print_ram();
-        for i in -1093..=1093 {
+        for i in -1094..=1093 {
             let i: Tryte = i.try_into().unwrap();
             assert_eq!(ram.read_tryte(i.extend()), i);
         }
@@ -219,14 +219,14 @@ mod tests {
         for i in -364..=364 {
             let word: Word = i.try_into().unwrap();
             let addr: Addr = (i * 3).try_into().unwrap();
-            let addr = addr - Addr::ONE;
+            let addr = addr;
             eprintln!("Addr: {addr}");
             ram.write_word(addr, word);
         }
         for i in -364..=364 {
             let word: Word = i.try_into().unwrap();
             let addr: Addr = (i * 3).try_into().unwrap();
-            let addr = addr - Addr::ONE;
+            let addr = addr;
             assert_eq!(ram.read_word(addr), word);
         }
     }
@@ -235,14 +235,14 @@ mod tests {
     fn test_both() {
         let mut ram = Ram::new(Word::ZERO, Word::MAX);
         ram.write_tryte(Word::ZERO, Tryte::MAX);
-        assert_eq!(ram.read_word(-Word::ONE), (Tryte::MAX << 9).extend());
+        assert_eq!(ram.read_word(Word::ZERO), (Tryte::MAX << 9).extend());
         ram.write_tryte(-Word::ONE, Tryte::MAX);
         ram.print_ram();
         assert_eq!(
-            ram.read_word(-Word::ONE),
+            ram.read_word(Word::ZERO),
             Tryte::MAX.extend().set(Tryte::MAX, 9)
         );
         ram.write_tryte(Word::ONE, Tryte::MAX);
-        assert_eq!(ram.read_word(-Word::ONE), Word::MAX);
+        assert_eq!(ram.read_word(Word::ZERO), Word::MAX);
     }
 }

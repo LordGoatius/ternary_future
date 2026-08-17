@@ -107,16 +107,18 @@ pub mod tests {
         let ram: &'static mut Ram =
             Box::leak(Box::new(Ram::new(Word::ZERO, Word::MAX / Word::TWO)));
         for (i, instr) in instrs.into_iter().enumerate() {
-            ram.write_word((i as isize * 3).try_into().unwrap(), instr);
+            ram.write_word(dbg!(i as isize * 3).try_into().unwrap(), instr);
         }
         let memslice: &'static mut [MemEntry] = vec![ram.to_mementry()].leak();
 
         let mem = Memory::from_slice(memslice);
         let mut machine = Machine::from_memory(mem);
         machine.dispatch(Word::ZERO);
+        assert_eq!(machine.regs.get(C), Word::from_str("1000T00"));
     }
 
-    // #[test]
+    #[test]
+    #[cfg(feature = "ext_mul")]
     fn test_factorial_ram_recursive_machine() {
         // NOTE: "pseudocode"
         // fn fact(n: i27) -> i27 {
@@ -126,32 +128,53 @@ pub mod tests {
         //         return n * fact(n - 1)
         //     }
         // }
-        // mov rn11, 2
-        // mov rn13, n
-        // mov rn10, 729 / 2 ; top word in our current 
-        // call FACT
-        // b HALT
-        // ; n is passed in rn13
-        // FACT:
-        //     bgt rn13, CALC
-        //     mov rn12, 2
-        //     b return
-        // CALC:
-        //     sw  rn10, rn13 ; push onto stack
-        //     sub rn10, 3    ; push onto stack
-        //     sub rn13, 1
-        //     call FACT  ; return in rn12
-        //     add rn10, 3    ; pop from stack
-        //     lw  rn13, rn10 ; pop from stack
-        //     mul rn13, rn12
+        // 
+        // 0 add r1, 2
+        // 1 add r2, n
+        // 2 add r10, 729 / 2 ; top word in our current 
+        // 3 call FACT (jal r4, 6)
+        // 4 j HALT
+        // FACT: ; n passed in r2, call address in r4
+        // 5 sw r4, r10
+        // 6 add r10, -1
+        // 7 bgt r2, r1, CALC ; if n <= 2
+        // 8 add r3, r2 ; store n in r3
+        // 9 j RET
+        // CALC: ; n is in r2
+        // 10 call FACT ; fact(n-1) will be in r3
+        // 11 mul r3, r2
         // RET:
-        //     ret
+        // 12 add r10, 1
+        // 13 lw r4, r10
+        // 14 ret (jal r4)
         // HALT:
-        //     sret
-        const HALT: Imm12 = Imm12::from_str("110"); // +12
-        const LOOP: Imm18 = Imm18::from_str("T00"); // -9
+        // 15 ecall
+        const TOP: Imm12 = Imm12::from_str("111110");
         let n: Imm12 = 6.try_into().unwrap();
-        let instrs: [Word; 0] = [];
+        let instrs: [Word; 16] = {
+            use JTC_1701::*;
+            [
+                /* 00 */ encode(ADDI(A, A, Imm12::TWO)),
+                /* 03 */ encode(ADDI(B, B, n)),
+                /* 06 */ encode(ADDI(J, J, TOP)),
+                /* 09 */ encode(JAL(D, Imm18::from_str("1T0"))),
+                /* 12 */ encode(JAL(ZERO, Imm18::from_str("1010"))),
+                // FACT:
+                /* 15 */ encode(SW(J, D, Imm12::ZERO)),
+                /* 18 */ encode(ADDI(J, J, -Imm12::ONE)),
+                /* 21 */ encode(BGT(B, A, Imm12::from_str("100"))),
+                /* 24 */ encode(ADD(C, B, ZERO)),
+                /* 27 */ encode(JAL(ZERO, Imm18::from_str("100"))),
+                // CALC:
+                /* 30 */ encode(JAL(D, Imm18::from_str("1TT0"))),
+                /* 33 */ encode(MUL(C, C, B)),
+                // RET:
+                /* 36 */ encode(ADDI(J, J, Imm12::ONE)),
+                /* 39 */ encode(LW(D, J, Imm12::ZERO)),
+                /* 42 */ encode(JALR(ZERO, D, Imm12::ZERO)),
+                encode(ECALL(A, Imm18::ZERO)),
+            ]
+        };
 
         let ram: &'static mut Ram =
             Box::leak(Box::new(Ram::new(Word::ZERO, Word::MAX / Word::TWO)));
@@ -163,6 +186,7 @@ pub mod tests {
         let mem = Memory::from_slice(memslice);
         let mut machine = Machine::from_memory(mem);
         machine.dispatch(Word::ZERO);
+        assert_eq!(machine.regs.get(C), Word::from_str("1000T00"));
     }
 }
 
