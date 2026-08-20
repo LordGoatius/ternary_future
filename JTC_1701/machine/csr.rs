@@ -65,3 +65,27 @@ impl Csr {
         self.values[csr as usize] = value
     }
 }
+
+struct STVEC(Word);
+struct SCOUNTEREN(Word);
+struct SSCRATCH(Word);
+struct SEPC(Word);
+struct STCAUSE(Word);
+struct STVAL(Word);
+struct SIP(Word);
+struct SATP(Word);
+
+/// SSTATUS:
+///     SIE: Interrupt enable
+///     SPIE: The SPIE bit indicates whether supervisor
+///           interrupts were enabled prior to trapping into supervisor mode.
+///           When a trap is taken into supervisor mode, SPIE is set to SIE,
+///           and SIE is set to 0. When an SRET instruction is executed, SIE
+///           is set to SPIE, then SPIE is set to 1.
+///     SPP: 0 if trap comes from userspace
+struct SSTATUS(Word);
+impl SSTATUS {
+    fn write(&mut self) {}
+}
+
+struct SIE(Word);

@@ -20,6 +20,7 @@
 #![cfg_attr(not(test), no_std)]
 #![cfg_attr(test, feature(test))]
 #![warn(clippy::missing_const_for_fn)]
+#![cfg_attr(feature = "simd", feature(portable_simd))]
 
 use core::cmp::Ordering;
 
@@ -33,6 +34,8 @@ mod ord;
 mod shift;
 mod sub;
 mod tritwise;
+#[cfg(feature = "simd")]
+mod simd;
 
 pub type Trit = Ternary<1>;
 
@@ -233,15 +236,15 @@ pub mod tests {
     /// If this code compiles, `rustc` will error.
     #[cfg(feature = "compile_fail")]
     mod _compile_tests {
-        use crate::tern_next::Ternary;
+        use crate::Ternary;
         #[test]
         fn _test1() {
-            let _ = Ternary::<33>(0, 0);
+            let _ = Ternary::<33>{pos: 0, neg: 0};
         }
 
         fn _test2() {
-            let t1 = Ternary::<32>(0, 0);
-            let t2 = Ternary::<15>(0, 0);
+            let t1 = Ternary::<32>{pos: 0, neg: 0};
+            let t2 = Ternary::<15>{pos: 0, neg: 0};
             t2 + t1
         }
     }

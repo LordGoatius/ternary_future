@@ -13,3 +13,4 @@ itertools = { workspace = true }
 [features]
 default = []
 compile_fail = []
+simd = []
